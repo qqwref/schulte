@@ -25,12 +25,12 @@
             <div v-for="c in gridRange" class="cell" :style="{width: colWidth}"
                  @mouseover="hoveredCell = r*gridSize + c"
                  @mouseleave="hoveredCell = -1"
-                 @click="setClickedCell(r*gridSize + c, $event)"
-                 :class="{'normal-cell' : !showHover && !showClickAnimation,
-                          'hovered-cell': showHover && (hoveredCell == r*gridSize + c),
-                          'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex,
-                          'wrong-cell'  : showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex,
-                          'traced-cell' : showTrace && tracedCell(r*gridSize + c)
+                 @mousedown="setClickedCell(r*gridSize + c, $event)"
+                 :class="{'normal-cell' : (!showHover && !showClickAnimation) || !gameStarted,
+                          'hovered-cell': showHover && (hoveredCell == r*gridSize + c) && gameStarted,
+                          'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
+                          'wrong-cell'  : showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted,
+                          'traced-cell' : showTrace && tracedCell(r*gridSize + c) && gameStarted
                           }">
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
@@ -146,6 +146,8 @@
                                       v-if="groupCount == 4"
                                       v-html="groupRange(3)"></div>
                             </div>
+							<input class="w3-check" type="checkbox" v-model="collateGroups" style="margin-top: 5px;">
+                            <label class="w3-validate">Collate Groups </label>
                         </div>
                     </div>
                     <!--<div class="w3-row" >-->
@@ -191,10 +193,10 @@
                                 <label class="w3-validate">Show Hover</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showTrace">
-                                <label class="w3-validate">Show Trace</label> </p>
+                                <label class="w3-validate">Show Correct Cells</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showClickResult">
-                                <label class="w3-validate">Show Click Result</label> </p>
+                                <label class="w3-validate">Show Wrong Clicks</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showCenterDot">
                                 <label class="w3-validate">Show Center Dot</label> </p>

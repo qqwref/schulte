@@ -49,6 +49,7 @@ var appData = {
     inverseCount: false,
     divergentCount: false,
     variousCounts: false,
+	collateGroups: false,
     timerMode: false,
     timerMinutes: 5,
     currGroup: 0,
@@ -110,16 +111,15 @@ var appData = {
         },
         timeDiff: function () {
             var diff = (this.stopTime - this.startTime); // milliseconds between
+			var millis = Math.floor(diff % 1000);
             diff = diff / 1000;
             var seconds = Math.floor(diff % 60);
             diff = diff / 60;
-            var minutes = Math.floor(diff % 60);
-            diff = diff / 60;
-            var hours = Math.floor(diff % 24);
+            var minutes = Math.floor(diff);
 
-            return ("0" + hours).slice (-2) + ':' +
-                   ("0" + minutes).slice (-2) + ':' +
-                   ("0" + seconds).slice (-2);
+            return minutes + ':' +
+                   ("0" + seconds).slice (-2) + '.' +
+				   ("00" + millis).slice (-3);
         }
     }
 };
@@ -176,6 +176,9 @@ vueApp = new Vue({
         variousCounts: function () {
             this.initGame();
         },
+		collateGroups: function () {
+			this.initGame();
+		},
         spinSymbols: function () {
             this.updateSymbolSpins();
         },
@@ -354,7 +357,12 @@ vueApp = new Vue({
             if (num > 0 || num < this.groups[this.currGroup].size) {
                 this.groups[this.currGroup].currNum = num;
             }
-            this.nextGroup();
+			if (this.collateGroups) {
+				this.nextGroup();
+			} else if (num == this.groups[this.currGroup].size + 1) {
+				num = 1;
+				this.nextGroup();
+			}
         },
         nextGroup: function () {
             this.currGroup = (this.currGroup + 1) % this.groupCount; // round it

@@ -173,7 +173,7 @@ select::-ms-expand {
 
 .traced-cell {
     color: black;
-    background: #f1f9f0;
+    background: #b5fcac;
 }
 
 .selected-cell {
@@ -183,7 +183,7 @@ select::-ms-expand {
 
 .correct-cell {
     color: black;
-    background: #bbf4b8;
+    background: #b5fcac;
 }
 
 .wrong-cell {
