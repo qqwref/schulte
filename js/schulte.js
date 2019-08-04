@@ -63,12 +63,12 @@ var appData = {
     clickIndex: -1,
     correctIndex: -1,
 
+	clearCorrect: false,
     showHover: true,
     showClickResult: true,
     showClickAnimation: true,
     showTrace: true,
     showCenterDot: false,
-    show69Dot: false,
     shuffleSymbols: false,
     turnSymbols: false,
     spinSymbols: false,
@@ -179,14 +179,14 @@ vueApp = new Vue({
 		collateGroups: function () {
 			this.initGame();
 		},
+		clearCorrect: function () {
+			this.initGame();
+		},
         spinSymbols: function () {
             this.updateSymbolSpins();
         },
         turnSymbols: function () {
             this.updateSymbolTurns();
-        },
-        show69Dot: function () {
-            this.update69Dots();
         }
     },
     computed: {
@@ -218,7 +218,6 @@ vueApp = new Vue({
             this.shuffleCells(1000);
             this.updateSymbolTurns();
             this.updateSymbolSpins();
-            this.update69Dots();
         },
         startGame: function () {
             this.initGame();
@@ -270,6 +269,9 @@ vueApp = new Vue({
                     this.stats.correctClicks ++;
                     this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, false, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
                     this.cells[this.clickIndex].traced = true;
+					if (this.clearCorrect) {
+						this.cells[this.clickIndex].symbol = '';
+					}
                     if (this.shuffleSymbols) {
                         this.shuffleCells(1000);
                         this.correctIndex = this.indexOfCorrectCell();
@@ -551,17 +553,6 @@ vueApp = new Vue({
                             break;
                         default:
                             // no turn
-                    }
-                }
-            }
-        },
-        update69Dots: function () {
-            for (var i = 0; i < this.cells.length; i++) {
-                if (this.cells[i].number == 6 || this.cells[i].number == 9) {
-                    if (this.show69Dot) {
-                        this.cells[i].symbol = this.cells[i].number + '.';
-                    } else {
-                        this.cells[i].symbol = this.cells[i].number;
                     }
                 }
             }
