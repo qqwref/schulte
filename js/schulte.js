@@ -215,9 +215,10 @@ vueApp = new Vue({
             this.clearIndexes();
             this.currGroup = 0;
             this.makeGridCells();
-            this.shuffleCells(1000);
+            this.shuffleCells();
             this.updateSymbolTurns();
             this.updateSymbolSpins();
+            this.update69Underline();
         },
         startGame: function () {
             this.initGame();
@@ -273,7 +274,7 @@ vueApp = new Vue({
                         this.cells[this.clickIndex].symbol = '';
                     }
                     if (this.shuffleSymbols) {
-                        this.shuffleCells(1000);
+                        this.shuffleCells();
                         this.correctIndex = this.indexOfCorrectCell();
                         this.clickIndex = this.correctIndex;
                     } else {
@@ -464,19 +465,20 @@ vueApp = new Vue({
                     cell.group = g;
                     if (this.groupCount > 1) {
                         cell.colorStyle = this.groupColorStyles[g];
-                    }
+                    };
                     range.push(cell);
                 }
             }
             this.cells = range;
         },
-        shuffleCells: function (shuffleCount) {
-            for (var i = 0; i < shuffleCount; i++) {
-                var aIdx = Math.floor(Math.random() * this.cells.length);
-                var bIdx = Math.floor(Math.random() * this.cells.length);
-                var aVal = this.cells[aIdx];
-                this.cells[aIdx] = this.cells[bIdx];
-                this.cells[bIdx] = aVal;
+        shuffleCells: function () {
+            for (var i=0; i<this.cells.length; i++) {
+                var other = i + Math.floor(Math.random() * (this.cells.length - i));
+                if (other != i) {
+                    var temp = this.cells[i];
+                    this.cells[i] = this.cells[other];
+                    this.cells[other] = temp;
+                }
             }
         },
         hideSelect: function () {
@@ -555,6 +557,14 @@ vueApp = new Vue({
                         default:
                             // no turn
                     }
+                }
+            }
+        },
+        update69Underline: function () {
+            if (!this.turnSymbols && !this.spinSymbols) return;
+            for (var i = 0; i < this.cells.length; i++) {
+                if (this.cells[i].number == 6 || this.cells[i].number == 9 || this.cells[i].number == 66 || this.cells[i].number == 99) {
+                    this.cells[i].cssClasses['underline'] = true;
                 }
             }
         },

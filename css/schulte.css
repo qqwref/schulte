@@ -58,7 +58,9 @@ select::-ms-expand {
 
     font-size: calc(8vmin);
     font-weight: bold;
+}
 
+.transition {
     transition: background 800ms;
 }
 
@@ -158,6 +160,10 @@ select::-ms-expand {
     color: inherit;
     font-size: calc(8vmin);
     font-weight: bold;
+}
+
+.underline {
+    text-decoration: underline;
 }
 
 .normal-cell {

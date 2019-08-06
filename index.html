@@ -31,7 +31,8 @@
                           'hovered-cell': showHover && (hoveredCell == r*gridSize + c) && gameStarted,
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
                           'wrong-cell'  : showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted,
-                          'traced-cell' : showTrace && tracedCell(r*gridSize + c) && gameStarted
+                          'traced-cell' : showTrace && tracedCell(r*gridSize + c) && gameStarted,
+                          'transition' : !shuffleSymbols
                           }">
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
