@@ -49,7 +49,7 @@ var appData = {
     inverseCount: false,
     divergentCount: false,
     variousCounts: false,
-	collateGroups: false,
+    collateGroups: false,
     timerMode: false,
     timerMinutes: 5,
     currGroup: 0,
@@ -63,7 +63,7 @@ var appData = {
     clickIndex: -1,
     correctIndex: -1,
 
-	clearCorrect: false,
+    clearCorrect: false,
     showHover: true,
     showClickResult: true,
     showClickAnimation: true,
@@ -111,7 +111,7 @@ var appData = {
         },
         timeDiff: function () {
             var diff = (this.stopTime - this.startTime); // milliseconds between
-			var millis = Math.floor(diff % 1000);
+            var millis = Math.floor(diff % 1000);
             diff = diff / 1000;
             var seconds = Math.floor(diff % 60);
             diff = diff / 60;
@@ -119,7 +119,7 @@ var appData = {
 
             return minutes + ':' +
                    ("0" + seconds).slice (-2) + '.' +
-				   ("00" + millis).slice (-3);
+                   ("00" + millis).slice (-3);
         }
     }
 };
@@ -176,12 +176,12 @@ vueApp = new Vue({
         variousCounts: function () {
             this.initGame();
         },
-		collateGroups: function () {
-			this.initGame();
-		},
-		clearCorrect: function () {
-			this.initGame();
-		},
+        collateGroups: function () {
+            this.initGame();
+        },
+        clearCorrect: function () {
+            this.initGame();
+        },
         spinSymbols: function () {
             this.updateSymbolSpins();
         },
@@ -269,9 +269,9 @@ vueApp = new Vue({
                     this.stats.correctClicks ++;
                     this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, false, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
                     this.cells[this.clickIndex].traced = true;
-					if (this.clearCorrect) {
-						this.cells[this.clickIndex].symbol = '';
-					}
+                    if (this.clearCorrect) {
+                        this.cells[this.clickIndex].symbol = '';
+                    }
                     if (this.shuffleSymbols) {
                         this.shuffleCells(1000);
                         this.correctIndex = this.indexOfCorrectCell();
@@ -359,12 +359,12 @@ vueApp = new Vue({
             if (num > 0 || num < this.groups[this.currGroup].size) {
                 this.groups[this.currGroup].currNum = num;
             }
-			if (this.collateGroups) {
-				this.nextGroup();
-			} else if (num == this.groups[this.currGroup].size + 1) {
-				num = 1;
-				this.nextGroup();
-			}
+            if (this.collateGroups) {
+                this.nextGroup();
+            } else if (num == this.groups[this.currGroup].size + 1) {
+                num = 1;
+                this.nextGroup();
+            }
         },
         nextGroup: function () {
             this.currGroup = (this.currGroup + 1) % this.groupCount; // round it
@@ -488,6 +488,7 @@ vueApp = new Vue({
             this.execDialog('stats');
         },
         execDialog: function (tabName) {
+            this.stopGame();
             this.changeDialogTab(tabName);
             this.stats.stopTime = new Date();
             this.dialogShowed = true;
