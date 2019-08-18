@@ -54,6 +54,8 @@ var appData = {
     timerMode: false,
     timerMinutes: 5,
     currGroup: 0,
+    colorGroups: false,
+    groupType: 0,
     groups: [], // array of Group: setups in makeGridCells() method
 
     groupColorStyles: ['color: green', 'color: red', 'color: blue', 'color: magenta', 'color: brown'],
@@ -161,10 +163,16 @@ vueApp = new Vue({
 
             this.initGame();
         },
-        groupCount: function (val) {
+        groupType: function (val) {
             if (typeof(val) === 'string') {
-                this.groupCount = parseInt(val); // recursion !!!
-                return;
+                val = parseInt(val);
+            }
+            if (val == 0) {
+                this.groupCount = 1;
+                this.colorGroups = false;
+            } else {
+                this.groupCount = val;
+                this.colorGroups = true;
             }
             this.initGame();
         },
@@ -468,7 +476,7 @@ vueApp = new Vue({
                 for (i = 1; i <= this.groups[g].size; i++) {
                     cell = new Cell(i);
                     cell.group = g;
-                    if (this.groupCount > 1) {
+                    if (this.colorGroups) {
                         cell.colorStyle = this.groupColorStyles[g];
                     };
                     range.push(cell);
