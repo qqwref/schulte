@@ -50,6 +50,7 @@ var appData = {
     divergentCount: false,
     variousCounts: false,
     collateGroups: false,
+    originalColors: false,
     timerMode: false,
     timerMinutes: 5,
     currGroup: 0,
@@ -179,6 +180,9 @@ vueApp = new Vue({
         collateGroups: function () {
             this.initGame();
         },
+        originalColors: function () {
+            this.initGame();
+        },
         clearCorrect: function () {
             this.initGame();
         },
@@ -219,6 +223,7 @@ vueApp = new Vue({
             this.updateSymbolTurns();
             this.updateSymbolSpins();
             this.update69Underline();
+            this.updateColorStyles();
         },
         startGame: function () {
             this.initGame();
@@ -562,10 +567,18 @@ vueApp = new Vue({
         },
         update69Underline: function () {
             if (!this.turnSymbols && !this.spinSymbols) return;
+            const confusing = new Set([6, 9, 66, 99, 68, 98, 86, 89]);
             for (var i = 0; i < this.cells.length; i++) {
-                if (this.cells[i].number == 6 || this.cells[i].number == 9 || this.cells[i].number == 66 || this.cells[i].number == 99) {
+                if (confusing.has(this.cells[i].number)) {
                     this.cells[i].cssClasses['underline'] = true;
                 }
+            }
+        },
+        updateColorStyles: function () {
+            if (this.originalColors) {
+                this.groupColorStyles = ['color: green', 'color: red', 'color: blue', 'color: magenta', 'color: brown'];
+            } else {
+                this.groupColorStyles = ['color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'];
             }
         },
         startMouseTracking: function () {

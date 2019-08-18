@@ -32,7 +32,7 @@
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
                           'wrong-cell'  : showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted,
                           'traced-cell' : showTrace && tracedCell(r*gridSize + c) && gameStarted,
-                          'transition' : !shuffleSymbols
+                          'transition' : gameStarted && !shuffleSymbols
                           }">
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
@@ -109,6 +109,7 @@
                                 <option value="2">2 groups</option>
                                 <option value="3">3 groups</option>
                                 <option value="4">4 groups</option>
+                                <option value="5">5 groups</option>
                             </select>
                         </div>
                     </div>
@@ -123,6 +124,9 @@
                             <br>
                             <input class="w3-check" type="checkbox" v-model="variousCounts" style="margin-top: 5px;">
                             <label class="w3-validate">Various Counts </label>
+                            <br>
+                            <input class="w3-check" type="checkbox" v-model="collateGroups" style="margin-top: 5px;">
+                            <label class="w3-validate">Collate Groups </label>
                         </div>
                         <div class="w3-col w3-half">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
@@ -143,11 +147,15 @@
                                       v-html="groupRange(2)"></div>
                                 <div class="color-num"
                                       :style="groupColorStyles[3]"
-                                      v-if="groupCount == 4"
+                                      v-if="groupCount > 3"
                                       v-html="groupRange(3)"></div>
+                                <div class="color-num"
+                                      :style="groupColorStyles[4]"
+                                      v-if="groupCount > 4"
+                                      v-html="groupRange(4)"></div>
                                 <br>
-                                <input class="w3-check" type="checkbox" v-model="collateGroups" style="margin-top: 5px;">
-                                <label class="w3-validate">Collate Groups </label>
+                                <input class="w3-check" type="checkbox" v-model="originalColors" style="margin-top: 5px;">
+                                <label class="w3-validate">Original Colors </label>
                             </div>
                         </div>
                     </div>
@@ -158,6 +166,7 @@
                         <!--</div>-->
                     <!--</div>-->
 
+                    <!--
                     <hr style="margin: 10px 0">
 
                     <div class="w3-row" >
@@ -184,6 +193,7 @@
                             </select>
                         </div>
                     </div>
+                    -->
 
                     <hr style="margin: 10px 0">
 
