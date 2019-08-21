@@ -31,7 +31,7 @@
                           'hovered-cell': showHover && (hoveredCell == r*gridSize + c) && gameStarted,
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
                           'wrong-cell'  : showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted,
-                          'traced-cell' : showTrace && tracedCell(r*gridSize + c) && gameStarted,
+                          'traced-cell' : tracedCell(r*gridSize + c) && showTrace &&  gameStarted,
                           'transition' : gameStarted && !shuffleSymbols
                           }">
                 <span :class="[cells[r*gridSize + c].cssClasses]"
@@ -208,7 +208,7 @@
                                 <label class="w3-validate">Show Correct Cells</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showClickResult">
-                                <label class="w3-validate">Show Wrong Clicks</label> </p>
+                                <label class="w3-validate">Show Click Result</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="clearCorrect">
                                 <label class="w3-validate">Empty Correct Cells</label> </p>
