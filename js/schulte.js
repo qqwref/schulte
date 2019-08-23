@@ -19,6 +19,49 @@ function Group (size) {
     this.inverted = false;
     this.divergent = false;
 }
+Group.prototype.firstNumber = function () {
+    if (this.inverted && !this.divergent) {
+        return this.size;
+    } else if (this.divergent && !this.inverted) {
+        return Math.floor(this.size / 2);
+    } else {
+        return 1;
+    }
+}
+Group.prototype.lastNumber = function () {
+    if (!this.inverted) {
+        return this.size;
+    } else if (this.divergent) {
+        return Math.floor(this.size / 2) + 1;
+    } else {
+        return 1;
+    }
+}
+Group.prototype.nextNumber = function () {
+    if (!this.divergent && !this.inverted) {
+        return this.currNum + 1;
+    } else if (!this.divergent) {
+        return this.currNum - 1;
+    } else {
+        var h = Math.floor(this.size / 2);
+        if (this.inverted) {
+            if (this.currNum <= h) {
+                return this.size - this.currNum + 1;
+            } else { // currNum > h
+                return 2 + (this.size - this.currNum);
+            }
+        } else {
+            var evenSize = 2 * h;
+            if (this.currNum == evenSize) {
+                return evenSize + 1;
+            } else if (this.currNum <= h) {
+                return evenSize - this.currNum + 1;
+            } else {
+                return evenSize - this.currNum;
+            }
+        }
+    }
+}
 
 function Point(x, y) {
     this.x = x;
@@ -340,43 +383,10 @@ vueApp = new Vue({
             return index;
         },
         nextNum: function () {
-            var num;
-            var currNum = this.groups[this.currGroup].currNum;
-
-            if (this.groups[this.currGroup].divergent) {
-                var grSize = this.groups[this.currGroup].size;
-                var h = Math.floor(grSize / 2);
-                var d = Math.abs(currNum - h);
-                if (this.groups[this.currGroup].inverted) {
-                    if (currNum <= h) {
-                        num = grSize - currNum + 1;
-                    } else { // currNum > h
-                        num = 2 + (grSize - currNum);
-                    }
-                } else {
-                    if (currNum === h) {
-                        num = h + 1;
-                    } else if (currNum < h) {
-                        num = h + 1 + d;
-                    } else { // currNum > h
-                        d < h ? num = h - d : num = currNum + 1;
-                    }
-                }
-            } else {
-                // ordinal count
-                if (this.groups[this.currGroup].inverted) {
-                    num = currNum - 1;
-                } else {
-                    num = currNum + 1;
-                }
-            }
-            if (num > 0 || num < this.groups[this.currGroup].size) {
-                this.groups[this.currGroup].currNum = num;
-            }
-            if (this.collateGroups) {
-                this.nextGroup();
-            } else if (num == this.groups[this.currGroup].size + 1) {
-                num = 1;
+            var isLast = (this.groups[this.currGroup].lastNumber() == this.groups[this.currGroup].currNum);
+            this.groups[this.currGroup].currNum = this.groups[this.currGroup].nextNumber();
+            
+            if (isLast || this.collateGroups) {
                 this.nextGroup();
             }
         },
@@ -422,37 +432,24 @@ vueApp = new Vue({
             for (g = 0; g < this.groupCount; g ++) {
                 this.groups.push(new Group(numsInGroup));
             }
-            this.groups[0].size += cellCount % this.groupCount;
+            for (var i = 0; i < cellCount % this.groupCount; i++) {
+                this.groups[i].size++;
+            }
 
             if (this.variousCounts) {
-                var various = [ {divergent: false, inverted: false, num: 'first'},
-                                {divergent: false, inverted: true,  num: 'last'},
-                                {divergent: true,  inverted: false, num: 'middle'},
-                                {divergent: true,  inverted: true,  num: 'first'}
+                var various = [ {divergent: false, inverted: false},
+                                {divergent: false, inverted: true},
+                                {divergent: true,  inverted: false},
+                                {divergent: true,  inverted: true}
                 ];
                 for (g = 0; g < this.groupCount; g++) {
-                    this.groups[g].inverted = various[g].inverted;
-                    this.groups[g].divergent = various[g].divergent;
-                    switch (various[g].num) {
-                        case 'last':
-                            this.groups[g].currNum = this.groups[g].size;
-                            break;
-                        case 'middle':
-                            this.groups[g].currNum = Math.floor(this.groups[g].size / 2);
-                            break;
-                        case 'first':
-                            this.groups[g].currNum = 1;
-                            break;
-                        default:
-                            this.groups[g].currNum = 1;
-                    }
-
+                    this.groups[g].inverted = various[g%4].inverted;
+                    this.groups[g].divergent = various[g%4].divergent;
                 }
             } else {
                 for (g = 0; g < this.groupCount; g++) {
                     if (this.divergentCount) {
                         this.groups[g].divergent = true;
-                        this.groups[g].currNum = Math.floor(this.groups[g].size / 2);
                     }
                 }
 
@@ -460,14 +457,12 @@ vueApp = new Vue({
                     for (g = 0; g < this.groupCount; g++) {
                         if (g % 2 > 0 || this.groupCount === 1) {
                             this.groups[g].inverted = true;
-                            if (this.groups[g].divergent) {
-                                this.groups[g].currNum = 1;
-                            } else {
-                                this.groups[g].currNum = this.groups[g].size;
-                            }
                         }
                     }
                 }
+            }
+            for (g = 0; g < this.groupCount; g++) {
+                this.groups[g].currNum = this.groups[g].firstNumber();
             }
 
             var range = [];
