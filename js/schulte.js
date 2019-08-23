@@ -448,17 +448,8 @@ vueApp = new Vue({
                 }
             } else {
                 for (g = 0; g < this.groupCount; g++) {
-                    if (this.divergentCount) {
-                        this.groups[g].divergent = true;
-                    }
-                }
-
-                if (this.inverseCount) {
-                    for (g = 0; g < this.groupCount; g++) {
-                        if (g % 2 > 0 || this.groupCount === 1) {
-                            this.groups[g].inverted = true;
-                        }
-                    }
+                    this.groups[g].divergent = this.divergentCount;
+                    this.groups[g].inverted = this.inverseCount;
                 }
             }
             for (g = 0; g < this.groupCount; g++) {
