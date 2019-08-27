@@ -37,27 +37,27 @@ Group.prototype.lastNumber = function () {
         return 1;
     }
 }
-Group.prototype.nextNumber = function () {
+Group.prototype.nextNumber = function (currNum=this.currNum) {
     if (!this.divergent && !this.inverted) {
-        return this.currNum + 1;
+        return currNum + 1;
     } else if (!this.divergent) {
-        return this.currNum - 1;
+        return currNum - 1;
     } else {
         var h = Math.floor(this.size / 2);
         if (this.inverted) {
-            if (this.currNum <= h) {
-                return this.size - this.currNum + 1;
+            if (currNum <= h) {
+                return this.size - currNum + 1;
             } else { // currNum > h
-                return 2 + (this.size - this.currNum);
+                return 2 + (this.size - currNum);
             }
         } else {
             var evenSize = 2 * h;
-            if (this.currNum == evenSize) {
+            if (currNum == evenSize) {
                 return evenSize + 1;
-            } else if (this.currNum <= h) {
-                return evenSize - this.currNum + 1;
+            } else if (currNum <= h) {
+                return evenSize - currNum + 1;
             } else {
-                return evenSize - this.currNum;
+                return evenSize - currNum;
             }
         }
     }
@@ -118,6 +118,9 @@ var appData = {
     shuffleSymbols: false,
     turnSymbols: false,
     spinSymbols: false,
+    frenzyMode: false,
+    goalList: [[0, 1]],
+    blindMode: false,
 
     mouseTracking: false,
     mouseMoves: [],   // array of Point
@@ -242,7 +245,13 @@ vueApp = new Vue({
         },
         turnSymbols: function () {
             this.updateSymbolTurns();
-        }
+        },
+        frenzyMode: function () {
+            this.initGame();
+        },
+        blindMode: function () {
+            this.initGame();
+        },
     },
     computed: {
         clickedCell: function () {
@@ -328,6 +337,20 @@ vueApp = new Vue({
                     this.cells[this.clickIndex].traced = true;
                     if (this.clearCorrect) {
                         this.cells[this.clickIndex].symbol = '';
+                    }
+                    if (this.frenzyMode) {
+                        this.cells[this.clickIndex].symbol = '';
+                        var nextGoal = Math.min(this.cells.length - 1, this.stats.correctClicks + 2);
+                        for (var i=0; i<this.cells.length; i++) {
+                            if (this.cells[i].group == this.goalList[nextGoal][0] && this.cells[i].number == this.goalList[nextGoal][1]) {
+                                this.cells[i].symbol = '' + this.cells[i].number;
+                            }
+                        }
+                    }
+                    if (this.blindMode) {
+                        for (var i = 0; i < this.cells.length; i++) {
+                            this.cells[i].symbol = '';
+                        }
                     }
                     if (this.shuffleSymbols) {
                         this.shuffleCells();
@@ -469,6 +492,39 @@ vueApp = new Vue({
                 }
             }
             this.cells = range;
+            
+            if (this.frenzyMode) {
+                // generate goal list
+                this.goalList = [[0, this.groups[0].currNum]];
+                var groupNums = [];
+                for (g=0; g<this.groupCount; g++) {
+                    groupNums[g] = this.groups[g].currNum;
+                }
+                for (i=0; i<(this.gridSize * this.gridSize) - 1; i++) {
+                    // code to compute next goal - taken from nextNum() and nextGroup()
+                    var thisGroup = this.goalList[i][0], thisNum = this.goalList[i][1];
+                    var isLast = (this.groups[thisGroup].lastNumber() == thisNum);
+                    groupNums[thisGroup] = this.groups[thisGroup].nextNumber(thisNum);
+                    if (isLast || this.collateGroups) {
+                        thisGroup = (thisGroup + 1) % this.groupCount;
+                    }
+                    this.goalList.push([thisGroup, groupNums[thisGroup]]);
+                }
+                
+                // clear symbols
+                for (i=0; i<cellCount; i++) {
+                    this.cells[i].symbol = '';
+                }
+                
+                // set first 3 symbols
+                for (i=0; i<3; i++) {
+                    for (g=0; g<cellCount; g++) {
+                        if (this.cells[g].group == this.goalList[i][0] && this.cells[g].number == this.goalList[i][1]) {
+                            this.cells[g].symbol = '' + this.cells[g].number;
+                        }
+                    }
+                }
+            }
         },
         shuffleCells: function () {
             for (var i=0; i<this.cells.length; i++) {

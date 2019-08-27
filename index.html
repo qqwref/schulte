@@ -117,16 +117,16 @@
 
                     <div class="w3-row" >
                         <div class="w3-col w3-half">
-                            <input class="w3-check" type="checkbox" v-model="inverseCount" :disabled="variousCounts" style="margin-top: 5px;">
+                            <input class="w3-check" type="checkbox" v-model="inverseCount" :disabled="variousCounts">
                             <label class="w3-validate">Inverse Count </label>
                             <br>
-                            <input class="w3-check" type="checkbox" v-model="divergentCount" :disabled="variousCounts" style="margin-top: 5px;">
+                            <input class="w3-check" type="checkbox" v-model="divergentCount" :disabled="variousCounts">
                             <label class="w3-validate">Divergent Count </label>
                             <br>
-                            <input class="w3-check" type="checkbox" v-model="variousCounts" style="margin-top: 5px;">
+                            <input class="w3-check" type="checkbox" v-model="variousCounts">
                             <label class="w3-validate">Various Counts </label>
                             <br>
-                            <input class="w3-check" type="checkbox" v-model="collateGroups" style="margin-top: 5px;">
+                            <input class="w3-check" type="checkbox" v-model="collateGroups">
                             <label class="w3-validate">Collate Groups </label>
                         </div>
                         <div class="w3-col w3-half">
@@ -212,6 +212,9 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="clearCorrect">
                                 <label class="w3-validate">Empty Correct Cells</label> </p>
+							<p>
+                                <input class="w3-check" type="checkbox" v-model="showCenterDot">
+                                <label class="w3-validate">Show Center Dot</label> </p>
                         </div>
                         <div class="w3-container w3-col w3-third w3-padding-0" style="min-width: 200px;">
                             <p>
@@ -224,8 +227,11 @@
                                 <input class="w3-check" type="checkbox" v-model="spinSymbols">
                                 <label class="w3-validate">Spin Numbers</label> </p>
                             <p>
-                                <input class="w3-check" type="checkbox" v-model="showCenterDot">
-                                <label class="w3-validate">Show Center Dot</label> </p>
+                                <input class="w3-check" type="checkbox" v-model="frenzyMode" :disabled="blindMode">
+                                <label class="w3-validate">Frenzy Mode</label> </p>
+							<p>
+                                <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
+                                <label class="w3-validate">Blind Mode</label> </p>
                                 
                         </div>
                     </div>
