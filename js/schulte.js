@@ -348,8 +348,10 @@ vueApp = new Vue({
                         }
                     }
                     if (this.blindMode) {
-                        for (var i = 0; i < this.cells.length; i++) {
-                            this.cells[i].symbol = '';
+                        if (this.stats.correctClicks == 1) {
+                            for (var i = 0; i < this.cells.length; i++) {
+                                this.cells[i].symbol = '';
+                            }
                         }
                     }
                     if (this.shuffleSymbols) {
@@ -375,6 +377,11 @@ vueApp = new Vue({
                         }
                     }
                 } else {
+                    if (this.blindMode && this.stats.correctClicks >= 1 && !this.cells[this.clickIndex].traced) {
+                        // unclear this cell, but add 10 seconds
+                        this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].number + "";
+                        this.stats.startTime -= 10000;
+                    }
                     this.stats.wrongClicks ++;
                     this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, true, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
                     this.correctIndex = -1;
