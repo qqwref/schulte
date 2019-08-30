@@ -5,6 +5,7 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+    margin: 50px;
 }
 
 select {
@@ -20,8 +21,8 @@ select::-ms-expand {
 }
 
 .wrapper {
-    width: 100vw;
-    height: 100vh;
+    width: calc(100vw - 100px);
+    height: calc(100vh - 100px);
     overflow-y: hidden;
     overflow-x: hidden;
 }
