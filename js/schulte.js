@@ -111,7 +111,7 @@ var appData = {
     clickIndex: -1,
     correctIndex: -1,
 
-    clearCorrect: false,
+    clearCorrect: true,
     showHover: true,
     showClickResult: true,
     showClickAnimation: true,
@@ -648,6 +648,43 @@ vueApp = new Vue({
             } else {
                 this.groupColorStyles = ['color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'];
             }
+        },
+        category: function () {
+            // things ignored: collate; original colors; show hover; show click result; show center dot
+            var category = this.gridSize + "x" + this.gridSize;
+            if (this.groupCount > 1) {
+                category += " " + this.groupCount + "c";
+            }
+            if (this.variousCounts) {
+                category += " Various";
+            } else {
+                if (this.inverseCount) category += " Inverse";
+                if (this.divergentCount) category += " Divergent";
+            }
+            if (this.shuffleSymbols) {
+                category += " Shuffle";
+            }
+            if (this.spinSymbols) {
+                category += " Spin";
+            } else if (this.turnSymbols) {
+                category += " Turn";
+            }
+            if (this.frenzyMode) {
+                if (this.frenzyCount == 1) {
+                    category += " React";
+                } else {
+                    category += " Frenzy " + this.frenzyCount;
+                }
+            } else if (this.blindMode) {
+                category += " Blind";
+            }
+            if (!this.showTrace) {
+                category += " -SC";
+            }
+            if (!this.clearCorrect) {
+                category += " -EC";
+            }
+            return category;
         },
         startMouseTracking: function () {
             this.mouseMoves.length = 0;
