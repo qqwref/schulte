@@ -10,6 +10,7 @@ function Cell(number) {
         'spin-right': false,
         'spin-left': false
     };
+    this.isReact = false;
     this.colorStyle = 'color: black';
 }
 
@@ -96,6 +97,7 @@ var appData = {
     originalColors: false,
     timerMode: false,
     timerMinutes: 5,
+    frenzyCount: 3,
     currGroup: 0,
     colorGroups: false,
     groupType: 0,
@@ -340,10 +342,16 @@ vueApp = new Vue({
                     }
                     if (this.frenzyMode) {
                         this.cells[this.clickIndex].symbol = '';
-                        var nextGoal = Math.min(this.cells.length - 1, this.stats.correctClicks + 2);
+                        if (this.frenzyCount == 1) {
+                            this.cells[this.clickIndex].isReact = false;
+                        }
+                        var nextGoal = Math.min(this.cells.length - 1, this.stats.correctClicks + parseInt(this.frenzyCount) - 1);
                         for (var i=0; i<this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] && this.cells[i].number == this.goalList[nextGoal][1]) {
                                 this.cells[i].symbol = '' + this.cells[i].number;
+                                if (this.frenzyCount == 1) {
+                                    this.cells[i].isReact = true;
+                                }
                             }
                         }
                     }
@@ -523,11 +531,14 @@ vueApp = new Vue({
                     this.cells[i].symbol = '';
                 }
                 
-                // set first 3 symbols
-                for (i=0; i<3; i++) {
+                // set first few symbols
+                for (i=0; i<this.frenzyCount; i++) {
                     for (g=0; g<cellCount; g++) {
                         if (this.cells[g].group == this.goalList[i][0] && this.cells[g].number == this.goalList[i][1]) {
                             this.cells[g].symbol = '' + this.cells[g].number;
+                            if (this.frenzyCount == 1) {
+                                this.cells[g].isReact = true;
+                            }
                         }
                     }
                 }
