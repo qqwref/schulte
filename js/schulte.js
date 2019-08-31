@@ -323,8 +323,8 @@ vueApp = new Vue({
 
                 // append mouseClick
                 if (this.mouseTracking) {
-                    var nx = event.pageX / this.$el.clientWidth;  // normalize in [0, 1] interval
-                    var ny = event.pageY / this.$el.clientHeight;
+                    var nx = (event.pageX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
+                    var ny = (event.pageY - 50) / this.$el.clientHeight;
                     this.mouseClicks.push(new Click(nx, ny, this.isCellCorrect(this.clickIndex)));
                 }
 
@@ -699,8 +699,8 @@ vueApp = new Vue({
         },
         appendMouseMove: function(event) {
             if (this.mouseTracking) {
-                var nx = event.clientX / this.$el.clientWidth;  // normalize in [0, 1] interval
-                var ny = event.clientY / this.$el.clientHeight;
+                var nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
+                var ny = (event.clientY - 50) / this.$el.clientHeight;
                 this.mouseMoves.push(new Point(nx, ny));
             }
         },
