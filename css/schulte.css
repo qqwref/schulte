@@ -57,7 +57,7 @@ select::-ms-expand {
     border: 1px solid #ccc;
     cursor: default;
 
-    font-size: calc(8vmin);
+    font-size: calc(8vmin - 8px);
     font-weight: bold;
 }
 
@@ -159,7 +159,6 @@ select::-ms-expand {
 
 .cell-symbol {
     color: inherit;
-    font-size: calc(8vmin);
     font-weight: bold;
 }
 

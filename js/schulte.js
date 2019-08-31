@@ -309,6 +309,7 @@ vueApp = new Vue({
             this.correctIndex = -1;
         },
         setClickedCell: function (cellIdx, event) {
+            if (event.button != 0) return;
             if (this.gameStarted) {
                 this.clickIndex = cellIdx;
                 if (this.showClickResult) {
