@@ -32,7 +32,7 @@
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
                           'wrong-cell'  : (showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted && !(frenzyMode && frenzyCount == 1)) || cells[r*gridSize + c].isReact,
                           'traced-cell' : tracedCell(r*gridSize + c) && showTrace &&  gameStarted,
-                          'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1)
+                          'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1) && showTransitions
                           }">
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
@@ -77,7 +77,7 @@
 
                 <div class="w3-container w3-margin w3-padding-0" v-if="settingsTabVisible">
                     <div class="w3-row">
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-quarter">
                             <label for="grid_size" class="w3-text-black w3-block">
                                 <b>Grid</b>
                             </label>
@@ -97,7 +97,25 @@
                             </select>
                         </div>
 
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-quarter">
+                            <label for="rounds" class="w3-text-black w3-block">
+                                <b>Rounds</b>
+                            </label>
+                            <select id="rounds"
+                                    class="w3-select w3-border w3-padding-small"
+                                    style="width:80%"
+                                    v-model="rounds">
+                                    <option value="1">1 round</option>
+                                    <option value="2">2 rounds</option>
+                                    <option value="3">3 rounds</option>
+                                    <option value="5">5 rounds</option>
+                                    <option value="10">10 rounds</option>
+                                    <option value="25">25 rounds</option>
+                                    <option value="100">100 rounds</option>
+                            </select>
+                        </div>
+
+                        <div class="w3-col w3-third">
                             <label for="groups" class="w3-text-black w3-block">
                                 <b>Groups</b>
                             </label>
@@ -241,7 +259,7 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
                                 <label class="w3-validate">Blind Mode</label> </p>
-                                
+
                         </div>
                     </div>
                 </div>

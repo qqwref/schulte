@@ -84,10 +84,25 @@ function ClickStats(groupN, number, time, err, inverse, divergent) {
     this.divergent = divergent;
 }
 
+var timeString = function(diff) {
+    var millis = Math.floor(diff % 1000);
+    diff = diff / 1000;
+    var seconds = Math.floor(diff % 60);
+    diff = diff / 60;
+    var minutes = Math.floor(diff);
+
+    return minutes + ':' +
+           ("0" + seconds).slice (-2) + '.' +
+           ("00" + millis).slice (-3);
+};
+
 var appData = {
-    gridSize: 5,
+    gridSize: 2,
     gridRange: [],
     cells: [],      // array of Cell
+
+    rounds: 2,
+    showTransitions: true,
 
     groupCount: 1,
     inverseCount: false,
@@ -161,16 +176,15 @@ var appData = {
             this.lastTime = currTime;
         },
         timeDiff: function () {
-            var diff = (this.stopTime - this.startTime); // milliseconds between
-            var millis = Math.floor(diff % 1000);
-            diff = diff / 1000;
-            var seconds = Math.floor(diff % 60);
-            diff = diff / 60;
-            var minutes = Math.floor(diff);
+            var diff = this.stopTime - this.startTime; // milliseconds between
+            var time = timeString(diff);
 
-            return minutes + ':' +
-                   ("0" + seconds).slice (-2) + '.' +
-                   ("00" + millis).slice (-3);
+            if (appData.rounds > 1) {
+                var avgTime = timeString(diff / appData.rounds);
+                time += ' (' + avgTime + ' average)';
+            }
+
+            return time;
         }
     }
 };
@@ -208,6 +222,13 @@ vueApp = new Vue({
             }
             this.rowHeight = 100 / val + '%';
             this.colWidth = 100 / val + '%';
+
+            this.initGame();
+        },
+        rounds: function(val) {
+            if (typeof(val) === 'string') {
+                val = parseInt(val);
+            }
 
             this.initGame();
         },
@@ -378,9 +399,14 @@ vueApp = new Vue({
                             this.nextNum();
                         }
                     } else {
-                        if (this.stats.correctClicks >= this.cells.length) {
+                        if (this.stats.correctClicks >= this.rounds * this.cells.length) {
                             this.stopGame();
                             this.execDialog('stats');
+                        } else if (this.stats.correctClicks > 0 &&
+                            this.stats.correctClicks % this.cells.length === 0) {
+                            this.initTable();
+                            this.showTransitions = false;
+                            setTimeout(() => this.showTransitions = true, 0);
                         } else {
                             this.nextNum();
                         }
@@ -424,7 +450,7 @@ vueApp = new Vue({
         nextNum: function () {
             var isLast = (this.groups[this.currGroup].lastNumber() == this.groups[this.currGroup].currNum);
             this.groups[this.currGroup].currNum = this.groups[this.currGroup].nextNumber();
-            
+
             if (isLast || this.collateGroups) {
                 this.nextGroup();
             }
@@ -508,7 +534,7 @@ vueApp = new Vue({
                 }
             }
             this.cells = range;
-            
+
             if (this.frenzyMode) {
                 // generate goal list
                 this.goalList = [[0, this.groups[0].currNum]];
@@ -526,12 +552,12 @@ vueApp = new Vue({
                     }
                     this.goalList.push([thisGroup, groupNums[thisGroup]]);
                 }
-                
+
                 // clear symbols
                 for (i=0; i<cellCount; i++) {
                     this.cells[i].symbol = '';
                 }
-                
+
                 // set first few symbols
                 for (i=0; i<this.frenzyCount; i++) {
                     for (g=0; g<cellCount; g++) {
@@ -653,6 +679,9 @@ vueApp = new Vue({
         category: function () {
             // things ignored: collate; original colors; show hover; show click result; show center dot
             var category = this.gridSize + "x" + this.gridSize;
+            if (this.rounds > 1) {
+                category += " " + this.rounds + "r";
+            }
             if (this.groupCount > 1) {
                 category += " " + this.groupCount + "c";
             }
