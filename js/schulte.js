@@ -184,8 +184,9 @@ var appData = {
             var time = timeString(diff);
 
             if (this.rounds.length > 1) {
+                var bestTime = timeString(this.bestRoundTime());
                 var avgTime = timeString(diff / appData.rounds);
-                time += ' (' + avgTime + ' average)';
+                time += ` (${avgTime} average, ${bestTime} best)`;
             }
 
             return time;
@@ -205,6 +206,13 @@ var appData = {
         roundTime: function(round) {
             var { startTime, stopTime } = this.rounds[round - 1];
             return stopTime - startTime;
+        },
+        bestRoundTime: function() {
+            var result = Infinity;
+            for (const round of this.rounds) {
+                result = Math.min(result, round.stopTime - round.startTime);
+            }
+            return result;
         },
         roundTimeString: function(round) {
             return timeString(this.roundTime(round));
