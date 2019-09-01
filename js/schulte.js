@@ -163,14 +163,15 @@ var appData = {
         correctClicks: 0,
         wrongClicks: 0,
         clicks: [], // array of ClickStats
+        rounds: [],
         clear: function () {
             this.startTime = new Date();
             this.stopTime = new Date();
             this.lastTime = new Date();
-            this.cumulativeTime = 0;
             this.correctClicks = 0;
             this.wrongClicks = 0;
             this.clicks = [];
+            this.rounds = [];
         },
         addClick: function (groupN, number, err, inverse, divergent) {
             var currTime = new Date();
@@ -179,16 +180,41 @@ var appData = {
             this.lastTime = currTime;
         },
         timeDiff: function () {
-            var diff = this.stopTime - this.startTime;
-            diff += this.cumulativeTime;
+            var diff = this.totalTime();
             var time = timeString(diff);
 
-            if (appData.rounds > 1) {
+            if (this.rounds.length > 1) {
                 var avgTime = timeString(diff / appData.rounds);
                 time += ' (' + avgTime + ' average)';
             }
 
             return time;
+        },
+        endRound: function() {
+            this.rounds.push({
+                startTime: this.startTime,
+                stopTime: new Date(),
+                lastTime: this.lastTime,
+                clicks: this.clicks,
+            });
+            this.startTime = new Date();
+            this.stopTime = new Date();
+            this.lastTime = new Date();
+            this.clicks = [];
+        },
+        roundTime: function(round) {
+            var { startTime, stopTime } = this.rounds[round - 1];
+            return stopTime - startTime;
+        },
+        roundTimeString: function(round) {
+            return timeString(this.roundTime(round));
+        },
+        totalTime: function() {
+            var result = 0;
+            for (var i = 1; i <= this.rounds.length; i++) {
+                result += this.roundTime(i);
+            }
+            return result;
         }
     }
 };
@@ -323,7 +349,7 @@ vueApp = new Vue({
         },
         breakBetweenRounds: function() {
             this.stats.stopTime = new Date();
-            this.stats.cumulativeTime += this.stats.stopTime - this.stats.startTime;
+            this.stats.endRound();
             this.betweenRounds = true;
             this.stopMouseTracking();
             for (var i = 0; i < this.cells.length; i++) {
@@ -348,7 +374,6 @@ vueApp = new Vue({
         stopGame: function () {
             this.clearIndexes();
             clearTimeout(this.selectedTimerId);
-            this.stats.stopTime = new Date();
             this.gameStarted = false;
             this.stopMouseTracking();
         },
@@ -429,15 +454,14 @@ vueApp = new Vue({
                         }
                     } else {
                         if (this.stats.correctClicks >= this.rounds * this.cells.length) {
+                            this.stats.endRound();
                             this.stopGame();
                             this.execDialog('stats');
                         } else if (this.stats.correctClicks > 0 &&
                             this.stats.correctClicks % this.cells.length === 0) {
-                            if (this.roundBreaks) {
-                                this.breakBetweenRounds();
-                            } else {
-                                this.initTable();
-                                this.killResultAnimations();
+                            this.breakBetweenRounds();
+                            if (!this.roundBreaks) {
+                                this.startNextRound();
                             }
                         } else {
                             this.nextNum();

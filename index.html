@@ -289,16 +289,20 @@
                     </table>
                     <div class="w3-row w3-col"
                          style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;"
-                         v-if="stats.clicks.length > 0">
-                        <table class="w3-table-all w3-hoverable w3-centered">
+                         v-if="stats.rounds.length > 0 && !gameStarted">
+                        <table v-for="round in Number(rounds)" class="w3-table-all w3-hoverable w3-centered">
                             <thead>
-                            <tr class="w3-light-grey">
-                                <th>Group</th>
-                                <th>Number</th>
-                                <th>Time</th>
-                            </tr>
+                                <tr class="w3-light-grey" v-if="rounds > 1">
+                                    <th></th>
+                                    <th>Round {{round}} - {{stats.roundTimeString(round)}}s</th>
+                                    <th></th>
+                                <tr class="w3-light-grey">
+                                    <th>Group</th>
+                                    <th>Number</th>
+                                    <th>Time</th>
+                                </tr>
                             </thead>
-                            <tr v-for="stat in stats.clicks" :class="{'w3-text-red': stat.err}">
+                            <tr v-for="stat in stats.rounds[round - 1].clicks" :class="{'w3-text-red': stat.err}">
                                 <td>{{stat.groupN + 1}}</td>
                                 <td>{{stat.number}}</td>
                                 <td>{{stat.time}}s</td>
