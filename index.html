@@ -18,7 +18,7 @@
     <div id="app" class="wrapper w3-container w3-padding-0 w3-margin-0"
          tabindex="-1"
          @mousemove="appendMouseMove($event)"
-         @keyup.esc="dialogShowed ? hideDialog() : execDialog('settings')"
+         @keyup.esc="onEsc()"
          @keyup.enter="if(dialogShowed) hideDialog()"
          v-focus v-cloak>
 
@@ -134,7 +134,7 @@
                     </div>
 
                     <div class="w3-row" >
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-quarter">
                             <input class="w3-check" type="checkbox" v-model="inverseCount" :disabled="variousCounts">
                             <label class="w3-validate">Inverse Count </label>
                             <br>
@@ -146,6 +146,10 @@
                             <br>
                             <input class="w3-check" type="checkbox" v-model="collateGroups">
                             <label class="w3-validate">Collate Groups </label>
+                        </div>
+                        <div class="w3-col w3-quarter">
+                            <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="rounds === '1'">
+                            <label class="w3-validate">Round Breaks</label>
                         </div>
                         <div class="w3-col w3-half">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">

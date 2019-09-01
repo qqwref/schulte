@@ -97,12 +97,14 @@ var timeString = function(diff) {
 };
 
 var appData = {
-    gridSize: 2,
+    gridSize: 5,
     gridRange: [],
     cells: [],      // array of Cell
 
-    rounds: 2,
+    rounds: 1,
+    roundBreaks: true,
     showTransitions: true,
+    betweenRounds: false,
 
     groupCount: 1,
     inverseCount: false,
@@ -165,6 +167,7 @@ var appData = {
             this.startTime = new Date();
             this.stopTime = new Date();
             this.lastTime = new Date();
+            this.cumulativeTime = 0;
             this.correctClicks = 0;
             this.wrongClicks = 0;
             this.clicks = [];
@@ -176,7 +179,8 @@ var appData = {
             this.lastTime = currTime;
         },
         timeDiff: function () {
-            var diff = this.stopTime - this.startTime; // milliseconds between
+            var diff = this.stopTime - this.startTime;
+            diff += this.cumulativeTime;
             var time = timeString(diff);
 
             if (appData.rounds > 1) {
@@ -317,6 +321,30 @@ vueApp = new Vue({
             this.startMouseTracking();
             this.gameStarted = true;
         },
+        breakBetweenRounds: function() {
+            this.stats.stopTime = new Date();
+            this.stats.cumulativeTime += this.stats.stopTime - this.stats.startTime;
+            this.betweenRounds = true;
+            this.stopMouseTracking();
+            for (var i = 0; i < this.cells.length; i++) {
+                this.cells[i].symbol = '';
+            }
+        },
+        killResultAnimations: function() {
+            this.showTransitions = false;
+            setTimeout(() => this.showTransitions = true, 0);
+        },
+        startNextRound: function() {
+            this.initTable();
+            this.killResultAnimations();
+            this.stats.startTime = new Date();
+            this.stats.lastTime = this.stats.startTime;
+            this.betweenRounds = false;
+            this.restartMouseTracking();
+            for (var i = 0; i < this.cells.length; i++) {
+                this.cells[i].symbol = this.cells[i].number;
+            }
+        },
         stopGame: function () {
             this.clearIndexes();
             clearTimeout(this.selectedTimerId);
@@ -331,6 +359,7 @@ vueApp = new Vue({
         },
         setClickedCell: function (cellIdx, event) {
             if (event.button != 0) return;
+            if (this.betweenRounds) return;
             if (this.gameStarted) {
                 this.clickIndex = cellIdx;
                 if (this.showClickResult) {
@@ -404,9 +433,12 @@ vueApp = new Vue({
                             this.execDialog('stats');
                         } else if (this.stats.correctClicks > 0 &&
                             this.stats.correctClicks % this.cells.length === 0) {
-                            this.initTable();
-                            this.showTransitions = false;
-                            setTimeout(() => this.showTransitions = true, 0);
+                            if (this.roundBreaks) {
+                                this.breakBetweenRounds();
+                            } else {
+                                this.initTable();
+                                this.killResultAnimations();
+                            }
                         } else {
                             this.nextNum();
                         }
@@ -609,9 +641,18 @@ vueApp = new Vue({
                 this.settingsTabVisible = true;
             }
         },
+        onEsc: function() {
+            if (this.betweenRounds) {
+                this.startNextRound();
+            } else if (this.dialogShowed) {
+                this.hideDialog();
+            } else {
+                this.execDialog('settings');
+            }
+        },
         hideDialog: function () {
             this.dialogShowed = false;
-            if ( ! this.gameStarted) {
+            if (!this.gameStarted) {
                 this.startGame();
             } else {
                 this.restartMouseTracking();
@@ -681,6 +722,7 @@ vueApp = new Vue({
             var category = this.gridSize + "x" + this.gridSize;
             if (this.rounds > 1) {
                 category += " " + this.rounds + "r";
+                category += this.roundBreaks ? 'b' : '';
             }
             if (this.groupCount > 1) {
                 category += " " + this.groupCount + "c";
