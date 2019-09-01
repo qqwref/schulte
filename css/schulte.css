@@ -262,3 +262,12 @@ select::-ms-expand {
     pointer-events: none;
     background: url('../img/green_dot.png');
 }
+
+.round-display {
+    position: fixed;
+    top: 2px;
+    font-size: 2em;
+    left: 50%;
+    transform: translateX(-50%)
+}
+

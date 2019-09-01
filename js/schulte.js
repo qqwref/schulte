@@ -103,6 +103,7 @@ var appData = {
 
     rounds: 1,
     roundBreaks: true,
+    showRounds: true,
     showTransitions: true,
     betweenRounds: false,
 
@@ -378,6 +379,10 @@ vueApp = new Vue({
             for (var i = 0; i < this.cells.length; i++) {
                 this.cells[i].symbol = this.cells[i].number;
             }
+        },
+        currentRoundNumber: function() {
+            return this.stats.rounds.length +
+                (this.betweenRounds ? 0 : 1);
         },
         stopGame: function () {
             this.clearIndexes();
