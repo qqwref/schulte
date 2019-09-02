@@ -180,33 +180,50 @@ var appData = {
             this.clicks.push(new ClickStats(groupN, number, time, err, inverse, divergent));
             this.lastTime = currTime;
         },
-        timeDiff: function () {
-            var diff = this.totalTime();
-            var time = timeString(diff);
+        resultTimeString: function () {
+            const rounds = this.rounds.length;
+            if (rounds < appData.rounds) return timeString(0);
+            const total = this.totalTime();
+            const time = timeString(total);
 
-            if (this.rounds.length > 1) {
-                var bestTime = timeString(this.bestRoundTime());
-                var avgTime = timeString(diff / appData.rounds);
-                time += ` (${avgTime} average, ${bestTime} best)`;
+            if (rounds > 1) {
+                const best = timeString(this.bestRoundTime());
+                const avg = timeString(total / rounds);
+                return `${time} (${avg} average, ${best} best)`;
             }
 
             return time;
         },
+        totalCorrectClicks: function() {
+            return this.correctClicks +
+                this.rounds.reduce((a, r) => a + r.correctClicks, 0);
+        },
+        totalWrongClicks: function() {
+            return this.wrongClicks +
+                this.rounds.reduce((a, r) => a + r.wrongClicks, 0);
+        },
         endRound: function() {
+            const now = new Date();
             this.rounds.push({
                 startTime: this.startTime,
-                stopTime: new Date(),
-                lastTime: this.lastTime,
+                stopTime: now,
                 clicks: this.clicks,
+                correctClicks: this.correctClicks,
+                wrongClicks: this.wrongClicks,
             });
-            this.startTime = new Date();
-            this.stopTime = new Date();
-            this.lastTime = new Date();
+            this.startTime = now;
+            this.lastTime = now;
             this.clicks = [];
+            this.correctClicks = 0;
+            this.wrongClicks = 0;
         },
         roundTime: function(round) {
-            var { startTime, stopTime } = this.rounds[round - 1];
-            return stopTime - startTime;
+            const stat = this.rounds[round - 1];
+            return stat ? stat.stopTime - stat.startTime : 0;
+        },
+        roundClicks: function(round) {
+            const stat = this.rounds[round - 1];
+            return stat ? stat.clicks : [];
         },
         bestRoundTime: function() {
             var result = Infinity;
@@ -469,15 +486,16 @@ vueApp = new Vue({
                             this.nextNum();
                         }
                     } else {
-                        if (this.stats.correctClicks >= this.rounds * this.cells.length) {
-                            this.stats.endRound();
-                            this.stopGame();
-                            this.execDialog('stats');
-                        } else if (this.stats.correctClicks > 0 &&
-                            this.stats.correctClicks % this.cells.length === 0) {
-                            this.breakBetweenRounds();
-                            if (!this.roundBreaks) {
-                                this.startNextRound();
+                        if (this.stats.correctClicks === this.cells.length) {
+                            if (this.currentRoundNumber() >= this.rounds) {
+                                this.stats.endRound();
+                                this.stopGame();
+                                this.execDialog('stats');
+                            } else {
+                                this.breakBetweenRounds();
+                                if (!this.roundBreaks) {
+                                    this.startNextRound();
+                                }
                             }
                         } else {
                             this.nextNum();

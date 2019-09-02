@@ -279,7 +279,7 @@
                     <table class="w3-table-all w3-large">
                         <tr>
                             <td>Time</td>
-                            <td>{{ stats.timeDiff() }}</td>
+                            <td>{{ stats.resultTimeString() }}</td>
                         </tr>
                         <tr>
                             <td>Category</td>
@@ -287,18 +287,17 @@
                         </tr>
                         <tr class="w3-pale-green">
                             <td>Correct Clicks</td>
-                            <td>{{ stats.correctClicks }}</td>
+                            <td>{{ stats.totalCorrectClicks() }}</td>
                         </tr>
                         <tr class="w3-pale-red">
                             <td>Wrong Clicks</td>
-                            <td>{{ stats.wrongClicks }}</td>
+                            <td>{{ stats.totalWrongClicks() }}</td>
                         </tr>
                     </table>
-                    <div class="w3-row" v-if="stats.rounds.length > 0">
+                    <div class="w3-row" v-if="stats.rounds.length === rounds">
                         <div class="w3-row w3-col"
                              :class="{'w3-half': parseInt(rounds) > 1}"
-                             style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;"
-                             v-if="stats.rounds.length > 0 && !gameStarted">
+                             style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;">
                             <table v-for="round in parseInt(rounds)" class="w3-table-all w3-hoverable w3-centered">
                                 <thead>
                                     <tr class="w3-light-grey" v-if="rounds > 1">
@@ -311,7 +310,7 @@
                                         <th>Time</th>
                                     </tr>
                                 </thead>
-                                <tr v-for="stat in stats.rounds[round - 1].clicks" :class="{'w3-text-red': stat.err}">
+                                <tr v-for="stat in stats.roundClicks(round)" :class="{'w3-text-red': stat.err}">
                                     <td>{{stat.groupN + 1}}</td>
                                     <td>{{stat.number}}</td>
                                     <td>{{stat.time}}s</td>
