@@ -252,6 +252,9 @@ vueApp = new Vue({
         if (this.dialogShowed && this.mousemapTabVisible) {
             this.drawMousemap();
         }
+        if (this.dialogShowed && this.statsTabVisible) {
+            this.drawRoundGraph();
+        }
     },
     watch: {
         gridSize: function (val) {
@@ -811,6 +814,94 @@ vueApp = new Vue({
                 var nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
                 var ny = (event.clientY - 50) / this.$el.clientHeight;
                 this.mouseMoves.push(new Point(nx, ny));
+            }
+        },
+        drawRoundGraph: function() {
+            const canvas = this.$refs['roundGraphCanvas'];
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
+                const { width, height } = canvas;
+
+                const roundTimes = this.stats.rounds.map(r => r.stopTime - r.startTime);
+                const rounds = roundTimes.length;
+                const min = roundTimes.reduce((r, t) => Math.min(r, t));
+                const tMin = 50 * (Math.floor(min / 50) - 1);
+                const max = roundTimes.reduce((r, t) => Math.max(r, t));
+                const tMax = 50 * (Math.ceil(max / 50) + 1);
+                const tAvg = roundTimes.reduce((a, b) => a + b) / rounds;
+
+                const x0 = 20 + Math.max(Math.floor(Math.log10(tMax) * 4), 4);
+                const y0 = 10;
+                const gWidth = width - x0;
+                const gHeight = height - y0 * 2;
+                ctx.clearRect(0, 0, width, height);
+
+                // axes
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'black';
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x0, y0 + gHeight);
+                ctx.lineTo(x0 + gWidth, y0 + gHeight);
+                ctx.stroke();
+
+                // vertical axis labels
+                const tLabels = 5;
+                const tMinY = y0 + gHeight - 6;
+                const tMaxY = y0 + 6;
+                const dt = (tMax - tMin) / (tLabels - 1);
+                const dy = (tMaxY - tMinY) / (tLabels - 1);
+
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'end';
+                for (let i = 0; i < tLabels; i++) {
+                    let text = (Math.floor(tMin + i * dt) / 1000).toString();
+                    text = text.includes('.') ? text : text + '.';
+                    const trailingZeros = Math.max(0, 3 - (text.length - 1 - text.indexOf('.')));
+                    text = text + '0'.repeat(trailingZeros);
+                    ctx.fillText(text, x0 - 4, tMinY + i * dy);
+                }
+
+                const yForT = t => 4 + gHeight - (t - tMin) / (tMax - tMin) * (tMinY - tMaxY);
+
+                // average line
+                const tAvgY = yForT(tAvg);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                ctx.setLineDash([10, 10]);
+                ctx.beginPath();
+                ctx.moveTo(x0, tAvgY);
+                ctx.lineTo(x0 + gWidth, tAvgY);
+                ctx.stroke();
+
+                // graph lines
+                const px0 = x0 + 10;
+                const dx = (gWidth - 20) / (rounds - 1);
+                const points = [];
+                ctx.setLineDash([0, 0]);
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'blue';
+                ctx.fillStyle = 'blue';
+                roundTimes.forEach((time, i) => {
+                    const x = px0 + i * dx;
+                    const y = yForT(time);
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    points.push([x, y]);
+                });
+                ctx.stroke();
+
+                // graph points
+                if (points.length <= 50) {
+                    const r = rounds <= 10 ? 4 : 2;
+                    points.forEach(([x, y]) => {
+                        ctx.beginPath();
+                        ctx.arc(x, y, r, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        ctx.fill();
+                    });
+                }
             }
         },
         drawMousemap: function () {

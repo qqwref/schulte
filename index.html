@@ -154,6 +154,7 @@
                         <div class="w3-col w3-quarter">
                             <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="parseInt(rounds) === 1">
                             <label class="w3-validate">Round Breaks</label>
+                            <br>
                             <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="parseInt(rounds) === 1">
                             <label class="w3-validate">Show Round</label>
                         </div>
@@ -293,27 +294,37 @@
                             <td>{{ stats.wrongClicks }}</td>
                         </tr>
                     </table>
-                    <div class="w3-row w3-col"
-                         style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;"
-                         v-if="stats.rounds.length > 0 && !gameStarted">
-                        <table v-for="round in Number(rounds)" class="w3-table-all w3-hoverable w3-centered">
-                            <thead>
-                                <tr class="w3-light-grey" v-if="rounds > 1">
-                                    <th></th>
-                                    <th>Round {{round}} - {{stats.roundTimeString(round)}}s</th>
-                                    <th></th>
-                                <tr class="w3-light-grey">
-                                    <th>Group</th>
-                                    <th>Number</th>
-                                    <th>Time</th>
+                    <div class="w3-row" v-if="stats.rounds.length > 0">
+                        <div class="w3-row w3-col"
+                             :class="{'w3-half': parseInt(rounds) > 1}"
+                             style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;"
+                             v-if="stats.rounds.length > 0 && !gameStarted">
+                            <table v-for="round in parseInt(rounds)" class="w3-table-all w3-hoverable w3-centered">
+                                <thead>
+                                    <tr class="w3-light-grey" v-if="rounds > 1">
+                                        <th></th>
+                                        <th>Round {{round}} - {{stats.roundTimeString(round)}}s</th>
+                                        <th></th>
+                                    <tr class="w3-light-grey">
+                                        <th>Group</th>
+                                        <th>Number</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tr v-for="stat in stats.rounds[round - 1].clicks" :class="{'w3-text-red': stat.err}">
+                                    <td>{{stat.groupN + 1}}</td>
+                                    <td>{{stat.number}}</td>
+                                    <td>{{stat.time}}s</td>
                                 </tr>
-                            </thead>
-                            <tr v-for="stat in stats.rounds[round - 1].clicks" :class="{'w3-text-red': stat.err}">
-                                <td>{{stat.groupN + 1}}</td>
-                                <td>{{stat.number}}</td>
-                                <td>{{stat.time}}s</td>
-                            </tr>
-                        </table>
+                            </table>
+                        </div>
+                        <div class="w3-row w3-col w3-half"
+                             style="margin-top: 5px"
+                             v-if="parseInt(rounds) > 1 && !gameStarted">
+                            <canvas class="round-graph"
+                                    width="250" height="250"
+                                    ref="roundGraphCanvas" />
+                        </div>
                     </div>
                 </div>
 
