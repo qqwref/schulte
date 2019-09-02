@@ -122,6 +122,7 @@ var appData = {
     spinSymbols: false,
     frenzyMode: false,
     goalList: [[0, 1]],
+    hideReact: false,
     blindMode: false,
 
     mouseTracking: false,
@@ -254,6 +255,9 @@ vueApp = new Vue({
         blindMode: function () {
             this.initGame();
         },
+        hideReact: function () {
+            this.initGame();
+        }
     },
     computed: {
         clickedCell: function () {
@@ -349,7 +353,9 @@ vueApp = new Vue({
                         var nextGoal = Math.min(this.cells.length - 1, this.stats.correctClicks + parseInt(this.frenzyCount) - 1);
                         for (var i=0; i<this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] && this.cells[i].number == this.goalList[nextGoal][1]) {
-                                this.cells[i].symbol = '' + this.cells[i].number;
+                                if (!(this.frenzyCount == 1 && this.hideReact)) {
+                                    this.cells[i].symbol = '' + this.cells[i].number;
+                                }
                                 if (this.frenzyCount == 1) {
                                     this.cells[i].isReact = true;
                                 }
@@ -536,7 +542,9 @@ vueApp = new Vue({
                 for (i=0; i<this.frenzyCount; i++) {
                     for (g=0; g<cellCount; g++) {
                         if (this.cells[g].group == this.goalList[i][0] && this.cells[g].number == this.goalList[i][1]) {
-                            this.cells[g].symbol = '' + this.cells[g].number;
+                            if (!(this.frenzyCount == 1 && this.hideReact)) {
+                                this.cells[g].symbol = '' + this.cells[g].number;
+                            }
                             if (this.frenzyCount == 1) {
                                 this.cells[g].isReact = true;
                             }
