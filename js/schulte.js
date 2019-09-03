@@ -842,7 +842,10 @@ vueApp = new Vue({
                 category += " Turn";
             }
             if (this.spinTable) {
-                category += " TS"
+                category += " Ts";
+                if (this.spinTableSpeed === 'speed1') category += "L";
+                if (this.spinTableSpeed === 'speed2') category += "M";
+                if (this.spinTableSpeed === 'speed3') category += "H";
             }
             if (this.noErrors) {
                 category += " NE"
