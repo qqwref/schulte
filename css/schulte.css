@@ -268,8 +268,16 @@ select::-ms-expand {
     transform: translateX(-50%)
 }
 
-.spinning {
+.spin-speed1 {
     animation: spin 4s linear infinite;
+}
+
+.spin-speed2 {
+    animation: spin 3s linear infinite;
+}
+
+.spin-speed3 {
+    animation: spin 2s linear infinite;
 }
 
 @keyframes spin {

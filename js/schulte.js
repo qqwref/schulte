@@ -118,6 +118,8 @@ var appData = {
     collateGroups: false,
     originalColors: false,
     spinTable: false,
+    spinTableSpeed: 'speed1',
+    noErrors: false,
     timerMode: false,
     timerMinutes: 5,
     frenzyCount: 3,
@@ -369,7 +371,7 @@ vueApp = new Vue({
             this.mouseMoves.length = 0;
             this.mouseClicks.length = 0;
             this.mouseTracking = false;
-            this.setTableMargin(this.spinTable ? 150 : 50);
+            this.setTableMargin(this.spinTable ? 100 : 50);
         },
         initTable: function () {
             this.clearIndexes();
@@ -394,7 +396,7 @@ vueApp = new Vue({
             document.getElementsByTagName('body')[0].style.margin = `${margin}px`;
             this.tableWidth = `calc(100vw - ${margin * 2}px)`;
             this.tableHeight = `calc(100vh - ${margin * 2}px)`;
-            this.cellFontSize = `calc(${Math.floor(20 - 1.6 * this.gridSize)}vmin)`;
+            this.cellFontSize = `calc(${Math.floor(18 - 1.25 * this.gridSize)}vmin)`;
         },
         breakBetweenRounds: function() {
             this.stats.stopTime = new Date();
@@ -539,6 +541,9 @@ vueApp = new Vue({
                         }
                     }
                 } else {
+                    if (this.noErrors) {
+                        return this.execDialog('settings');
+                    }
                     if (this.blindMode && this.stats.correctClicks >= 1 && !this.cells[this.clickIndex].traced) {
                         // unclear this cell, but add 10 seconds
                         this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].number + "";
@@ -838,6 +843,9 @@ vueApp = new Vue({
             }
             if (this.spinTable) {
                 category += " TS"
+            }
+            if (this.noErrors) {
+                category += " NE"
             }
             if (this.frenzyMode) {
                 if (this.frenzyCount == 1) {
