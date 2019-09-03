@@ -418,9 +418,6 @@ vueApp = new Vue({
             this.stats.lastTime = this.stats.startTime;
             this.betweenRounds = false;
             this.restartMouseTracking();
-            for (var i = 0; i < this.cells.length; i++) {
-                this.cells[i].symbol = this.cells[i].number;
-            }
         },
         currentRoundNumber: function() {
             return this.stats.rounds.length +
@@ -492,9 +489,11 @@ vueApp = new Vue({
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
-                        var nextGoal = Math.min(this.cells.length - 1, this.stats.correctClicks + parseInt(this.frenzyCount) - 1);
+                        var nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + parseInt(this.frenzyCount) - 1));
+                        console.log({ nextGoal, cc: this.stats.correctClicks });
                         for (var i=0; i<this.cells.length; i++) {
-                            if (this.cells[i].group == this.goalList[nextGoal][0] && this.cells[i].number == this.goalList[nextGoal][1]) {
+                            if (this.cells[i].group == this.goalList[nextGoal][0] &&
+                                this.cells[i].number == this.goalList[nextGoal][1]) {
                                 this.cells[i].symbol = '' + this.cells[i].number;
                                 if (this.frenzyCount == 1) {
                                     this.cells[i].isReact = true;
