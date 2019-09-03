@@ -117,6 +117,7 @@ var appData = {
     variousCounts: false,
     collateGroups: false,
     originalColors: false,
+    spinTable: false,
     timerMode: false,
     timerMinutes: 5,
     frenzyCount: 3,
@@ -152,6 +153,9 @@ var appData = {
 
     rowHeight: '20%',
     colWidth: '20%',
+    tableWidth: 'calc(100vw - 100px)',
+    tableHeight: 'calc(100vh - 100px)',
+    cellFontSize: 'calc(8vmin - 8px)',
     selectTimeOut: 500,
     selectedTimerId: -1,
     gameTimerId: -1,
@@ -340,6 +344,9 @@ vueApp = new Vue({
         blindMode: function () {
             this.initGame();
         },
+        spinTable: function() {
+            this.initGame();
+        },
     },
     computed: {
         clickedCell: function () {
@@ -362,6 +369,7 @@ vueApp = new Vue({
             this.mouseMoves.length = 0;
             this.mouseClicks.length = 0;
             this.mouseTracking = false;
+            this.setTableMargin(this.spinTable ? 150 : 50);
         },
         initTable: function () {
             this.clearIndexes();
@@ -381,6 +389,12 @@ vueApp = new Vue({
             }
             this.startMouseTracking();
             this.gameStarted = true;
+        },
+        setTableMargin: function(margin) {
+            document.getElementsByTagName('body')[0].style.margin = `${margin}px`;
+            this.tableWidth = `calc(100vw - ${margin * 2}px)`;
+            this.tableHeight = `calc(100vh - ${margin * 2}px)`;
+            this.cellFontSize = `calc(${Math.floor(20 - 1.6 * this.gridSize)}vmin)`;
         },
         breakBetweenRounds: function() {
             this.stats.stopTime = new Date();
@@ -783,7 +797,7 @@ vueApp = new Vue({
             }
         },
         update69Underline: function () {
-            if (!this.turnSymbols && !this.spinSymbols) return;
+            if (!this.turnSymbols && !this.spinSymbols && !this.spinTable) return;
             const confusing = new Set([6, 9, 66, 99, 68, 98, 86, 89]);
             for (var i = 0; i < this.cells.length; i++) {
                 if (confusing.has(this.cells[i].number)) {
@@ -821,6 +835,9 @@ vueApp = new Vue({
                 category += " Spin";
             } else if (this.turnSymbols) {
                 category += " Turn";
+            }
+            if (this.spinTable) {
+                category += " TS"
             }
             if (this.frenzyMode) {
                 if (this.frenzyCount == 1) {

@@ -20,6 +20,8 @@
          @mousemove="appendMouseMove($event)"
          @keyup.esc="onEsc()"
          @keyup.enter="if(dialogShowed) hideDialog()"
+         :class="{spinning: spinTable && gameStarted}"
+         :style="{ width: tableWidth, height: tableHeight }"
          v-focus v-cloak>
         <div class="round-display"
             v-if="gameStarted && showRounds && parseInt(rounds) > 1"
@@ -27,7 +29,8 @@
             {{currentRoundNumber()}} / {{rounds}}
         </div>
         <div v-for="r in gridRange" class="row" :style="{height: rowHeight}">
-            <div v-for="c in gridRange" class="cell" :style="{width: colWidth}"
+            <div v-for="c in gridRange" class="cell"
+                 :style="{width: colWidth, fontSize: cellFontSize }"
                  @mouseover="hoveredCell = r*gridSize + c"
                  @mouseleave="hoveredCell = -1"
                  @mousedown="setClickedCell(r*gridSize + c, $event)"
@@ -37,7 +40,8 @@
                           'wrong-cell'  : (showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted && !(frenzyMode && frenzyCount == 1)) || cells[r*gridSize + c].isReact,
                           'traced-cell' : tracedCell(r*gridSize + c) && showTrace &&  gameStarted,
                           'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1) && showTransitions
-                          }">
+                          }"
+                >
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
                       style="cursor: default;">
@@ -244,6 +248,9 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showCenterDot">
                                 <label class="w3-validate">Show Center Dot</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="spinTable">
+                                <label class="w3-validate">Spin Table</label> </p>
                         </div>
                         <div class="w3-container w3-col w3-third w3-padding-0" style="min-width: 200px;">
                             <p>
