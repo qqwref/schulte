@@ -1,3 +1,5 @@
+const PB_KEY = 'schulte-pbs';
+
 function Cell(number) {
     this.number = number;
     this.symbol = number;
@@ -106,6 +108,8 @@ var appData = {
     showRounds: true,
     showTransitions: true,
     betweenRounds: false,
+
+    personalBests: {},
 
     groupCount: 1,
     inverseCount: false,
@@ -261,6 +265,8 @@ vueApp = new Vue({
     data: appData,
     created: function () {
         this.initGame();
+        appData.personalBests =
+            JSON.parse(localStorage.getItem(PB_KEY)) || {};
     },
     mounted: function () {
         this.execDialog('settings');
@@ -410,6 +416,22 @@ vueApp = new Vue({
             this.gameStarted = false;
             this.stopMouseTracking();
         },
+        updatePB: function() {
+            const time = this.stats.totalTime();
+            const category = this.category();
+            const currentPB = this.personalBests[category];
+            if (!currentPB || currentPB > time) {
+                this.personalBests[category] = time;
+                localStorage.setItem(
+                    PB_KEY,
+                    JSON.stringify(this.personalBests),
+                );
+            }
+        },
+        pbTimeString: function() {
+            const pb = this.personalBests[this.category()];
+            return pb ? timeString(pb) : '';
+        },
         clearIndexes: function () {
             this.hoverIndex = -1;
             this.clickIndex = -1;
@@ -490,6 +512,7 @@ vueApp = new Vue({
                             if (this.currentRoundNumber() >= this.rounds) {
                                 this.stats.endRound();
                                 this.stopGame();
+                                this.updatePB();
                                 this.execDialog('stats');
                             } else {
                                 this.breakBetweenRounds();
