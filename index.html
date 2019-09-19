@@ -290,11 +290,11 @@
                                     <option value="6">6</option>
                                 </select></p>
                             <p>
-                                <input class="w3-check" type="checkbox" v-model="hideReact" :disabled="blindMode">
-                                <label class="w3-validate">Hide React Numbers</label> </p>
+                                <input class="w3-check" type="checkbox" v-model="hideReact" :disabled="blindMode || frenzyCount > 1">
+                                <label class="w3-validate">React: Hide Numbers</label> </p>
                             <p>
-                                <input class="w3-check" type="checkbox" v-model="hoverReact" :disabled="blindMode">
-                                <label class="w3-validate">Hover to Click in React</label> </p>
+                                <input class="w3-check" type="checkbox" v-model="hoverReact" :disabled="blindMode || frenzyCount > 1">
+                                <label class="w3-validate">React: Hover Mode</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
                                 <label class="w3-validate">Blind Mode</label> </p>
