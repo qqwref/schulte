@@ -148,6 +148,7 @@ var appData = {
     frenzyMode: false,
     goalList: [[0, 1]],
     hideReact: false,
+    hoverReact: false,
     blindMode: false,
 
     mouseTracking: false,
@@ -349,7 +350,10 @@ vueApp = new Vue({
         },
         hideReact: function () {
             this.initGame();
-        }
+        },
+        hoverReact: function () {
+            this.initGame();
+        },
         spinTable: function() {
             this.initGame();
         },
@@ -454,6 +458,15 @@ vueApp = new Vue({
             this.clickIndex = -1;
             this.correctIndex = -1;
         },
+        setHoveredCell: function (cellIdx, event) {
+            this.hoveredCell = cellIdx;
+            if (this.gameStarted && this.frenzyMode && this.frenzyCount == 1 && this.hoverReact) {
+                this.clickIndex = cellIdx;
+                if (this.isCellCorrect(this.clickIndex)) {
+                    this.nextTurn();
+                }
+            }
+        },
         setClickedCell: function (cellIdx, event) {
             if (event.button != 0) return;
             if (this.betweenRounds) return;
@@ -498,10 +511,9 @@ vueApp = new Vue({
                         for (var i=0; i<this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
-								if (!(this.frenzyCount == 1 && this.hideReact)) {
+                                if (!(this.frenzyCount == 1 && this.hideReact)) {
                                     this.cells[i].symbol = '' + this.cells[i].number;
                                 }
-                                this.cells[i].symbol = '' + this.cells[i].number;
                                 if (this.frenzyCount == 1) {
                                     this.cells[i].isReact = true;
                                 }
@@ -861,6 +873,9 @@ vueApp = new Vue({
             if (this.frenzyMode) {
                 if (this.frenzyCount == 1) {
                     category += " React";
+                    if (this.hoverReact) {
+                        category += " Hover";
+                    }
                 } else {
                     category += " Frenzy " + this.frenzyCount;
                 }

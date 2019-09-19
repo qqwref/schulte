@@ -31,7 +31,7 @@
         <div v-for="r in gridRange" class="row" :style="{height: rowHeight}">
             <div v-for="c in gridRange" class="cell"
                  :style="{width: colWidth, fontSize: cellFontSize }"
-                 @mouseover="hoveredCell = r*gridSize + c"
+                 @mouseover="setHoveredCell(r*gridSize + c, $event)"
                  @mouseleave="hoveredCell = -1"
                  @mousedown="setClickedCell(r*gridSize + c, $event)"
                  :class="{'normal-cell' : (!showHover && !showClickAnimation) || !gameStarted,
@@ -54,7 +54,7 @@
 
         <div class="w3-modal"
              :class="[dialogShowed ? 'display-block' : 'display-none']">
-            <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="min-width: 350px; max-width: 600px;">
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="min-width: 350px; max-width: 800px;">
                 <header class="w3-container w3-blue w3-center">
                     <span @click="hideDialog"
                           class="w3-button w3-display-topright w3-xxlarge w3-blue w3-hover-blue w3-hover-text-black"
@@ -85,7 +85,7 @@
 
                 <div class="w3-container w3-margin w3-padding-0" v-if="settingsTabVisible">
                     <div class="w3-row">
-                        <div class="w3-col w3-quarter">
+                        <div class="w3-col w3-third">
                             <label for="grid_size" class="w3-text-black w3-block">
                                 <b>Grid</b>
                             </label>
@@ -105,7 +105,7 @@
                             </select>
                         </div>
 
-                        <div class="w3-col w3-quarter">
+                        <div class="w3-col w3-third">
                             <label for="rounds" class="w3-text-black w3-block">
                                 <b>Rounds</b>
                             </label>
@@ -142,7 +142,7 @@
                     </div>
 
                     <div class="w3-row" >
-                        <div class="w3-col w3-quarter">
+                        <div class="w3-col w3-third">
                             <input class="w3-check" type="checkbox" v-model="inverseCount" :disabled="variousCounts">
                             <label class="w3-validate">Inverse Count </label>
                             <br>
@@ -155,14 +155,14 @@
                             <input class="w3-check" type="checkbox" v-model="collateGroups">
                             <label class="w3-validate">Collate Groups </label>
                         </div>
-                        <div class="w3-col w3-quarter">
+                        <div class="w3-col w3-third">
                             <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="parseInt(rounds) === 1">
                             <label class="w3-validate">Round Breaks</label>
                             <br>
                             <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="parseInt(rounds) === 1">
                             <label class="w3-validate">Show Round</label>
                         </div>
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-third">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
                                 <div class="color-num"
                                       v-if="groupCount == 1"
@@ -232,7 +232,7 @@
                     <hr style="margin: 10px 0">
 
                     <div class="w3-row w3-margin-0">
-                        <div class="w3-container w3-col w3-half w3-padding-0" style="min-width: 200px;">
+                        <div class="w3-container w3-col w3-third w3-padding-0">
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showHover">
                                 <label class="w3-validate">Show Hover</label> </p>
@@ -248,28 +248,35 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showCenterDot">
                                 <label class="w3-validate">Show Center Dot</label> </p>
-                            <p>
-                                <input class="w3-check" type="checkbox" v-model="spinTable">
-                                <label class="w3-validate">Spin Table</label>
-                                <select id="frenzy"
-                                    class="w3-select w3-border w3-padding-small" style="width: 35%"
-                                    v-model="spinTableSpeed">
-                                    <option value="speed1">Low</option>
-                                    <option value="speed2">Medium</option>
-                                    <option value="speed3">High</option>
-                                </select>
-                            </p>
                         </div>
-                        <div class="w3-container w3-col w3-third w3-padding-0" style="min-width: 200px;">
-                            <p>
-                                <input class="w3-check" type="checkbox" v-model="shuffleSymbols">
-                                <label class="w3-validate">Shuffle Numbers</label> </p>
+                        
+                        <div class="w3-container w3-col w3-third w3-padding-0">
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="turnSymbols">
                                 <label class="w3-validate">Turn Numbers</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="spinSymbols">
                                 <label class="w3-validate">Spin Numbers</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="spinTable">
+                                <label class="w3-validate">Spin Table</label>
+                                <select id="frenzy"
+                                    class="w3-select w3-border w3-padding-small" style="width: 30%"
+                                    v-model="spinTableSpeed">
+                                    <option value="speed1">Low</option>
+                                    <option value="speed2">Medium</option>
+                                    <option value="speed3">High</option>
+                                </select>
+                            </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="noErrors">
+                                <label class="w3-validate">No Errors</label> </p>
+                        </div>
+                        
+                        <div class="w3-container w3-col w3-third w3-padding-0">
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="shuffleSymbols">
+                                <label class="w3-validate">Shuffle Numbers</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="frenzyMode" :disabled="blindMode">
                                 <label class="w3-validate">Frenzy Mode</label> <select id="frenzy"
@@ -282,15 +289,15 @@
                                     <option value="5">5</option>
                                     <option value="6">6</option>
                                 </select></p>
-                             <p>
+                            <p>
                                 <input class="w3-check" type="checkbox" v-model="hideReact" :disabled="blindMode">
-                                <label class="w3-validate">Hide React Numbers</label>
+                                <label class="w3-validate">Hide React Numbers</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="hoverReact" :disabled="blindMode">
+                                <label class="w3-validate">Hover to Click in React</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
                                 <label class="w3-validate">Blind Mode</label> </p>
-                            <p>
-                                <input class="w3-check" type="checkbox" v-model="noErrors">
-                                <label class="w3-validate">No Errors</label> </p>
                         </div>
                     </div>
                 </div>
