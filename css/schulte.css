@@ -4,8 +4,8 @@
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
     margin: 50px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 select {
@@ -21,8 +21,6 @@ select::-ms-expand {
 }
 
 .wrapper {
-    width: calc(100vw - 100px);
-    height: calc(100vh - 100px);
     overflow-y: hidden;
     overflow-x: hidden;
 }
@@ -57,7 +55,6 @@ select::-ms-expand {
     border: 1px solid #ccc;
     cursor: default;
 
-    font-size: calc(8vmin - 8px);
     font-weight: bold;
 }
 
@@ -261,4 +258,30 @@ select::-ms-expand {
     transform: translate(-50%,-50%);
     pointer-events: none;
     background: url('../img/green_dot.png');
+}
+
+.round-display {
+    position: fixed;
+    top: 2px;
+    font-size: 2em;
+    left: 50%;
+    transform: translateX(-50%)
+}
+
+.spin-speed1 {
+    animation: spin 4s linear infinite;
+}
+
+.spin-speed2 {
+    animation: spin 3s linear infinite;
+}
+
+.spin-speed3 {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
 }

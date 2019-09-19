@@ -15,15 +15,22 @@
     </style>
 </head>
 <body>
-    <div id="app" class="wrapper w3-container w3-padding-0 w3-margin-0"
+   <div id="app" class="wrapper w3-container w3-padding-0 w3-margin-0"
          tabindex="-1"
          @mousemove="appendMouseMove($event)"
-         @keyup.esc="dialogShowed ? hideDialog() : execDialog('settings')"
+         @keyup.esc="onEsc()"
          @keyup.enter="if(dialogShowed) hideDialog()"
+         :class="[spinTable ? gameStarted && ('spin-' + spinTableSpeed) : '']"
+         :style="{ width: tableWidth, height: tableHeight }"
          v-focus v-cloak>
-
+        <div class="round-display"
+            v-if="gameStarted && showRounds && parseInt(rounds) > 1"
+        >
+            {{currentRoundNumber()}} / {{rounds}}
+        </div>
         <div v-for="r in gridRange" class="row" :style="{height: rowHeight}">
-            <div v-for="c in gridRange" class="cell" :style="{width: colWidth}"
+            <div v-for="c in gridRange" class="cell"
+                 :style="{width: colWidth, fontSize: cellFontSize }"
                  @mouseover="hoveredCell = r*gridSize + c"
                  @mouseleave="hoveredCell = -1"
                  @mousedown="setClickedCell(r*gridSize + c, $event)"
@@ -32,8 +39,9 @@
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
                           'wrong-cell'  : (showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted && !(frenzyMode && frenzyCount == 1)) || cells[r*gridSize + c].isReact,
                           'traced-cell' : tracedCell(r*gridSize + c) && showTrace &&  gameStarted,
-                          'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1)
-                          }">
+                          'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1) && showTransitions
+                          }"
+                >
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
                       style="cursor: default;">
@@ -77,7 +85,7 @@
 
                 <div class="w3-container w3-margin w3-padding-0" v-if="settingsTabVisible">
                     <div class="w3-row">
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-quarter">
                             <label for="grid_size" class="w3-text-black w3-block">
                                 <b>Grid</b>
                             </label>
@@ -97,7 +105,25 @@
                             </select>
                         </div>
 
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-quarter">
+                            <label for="rounds" class="w3-text-black w3-block">
+                                <b>Rounds</b>
+                            </label>
+                            <select id="rounds"
+                                    class="w3-select w3-border w3-padding-small"
+                                    style="width:80%"
+                                    v-model="rounds">
+                                    <option value="1">1 round</option>
+                                    <option value="2">2 rounds</option>
+                                    <option value="3">3 rounds</option>
+                                    <option value="5">5 rounds</option>
+                                    <option value="10">10 rounds</option>
+                                    <option value="25">25 rounds</option>
+                                    <option value="100">100 rounds</option>
+                            </select>
+                        </div>
+
+                        <div class="w3-col w3-third">
                             <label for="groups" class="w3-text-black w3-block">
                                 <b>Groups</b>
                             </label>
@@ -116,7 +142,7 @@
                     </div>
 
                     <div class="w3-row" >
-                        <div class="w3-col w3-half">
+                        <div class="w3-col w3-quarter">
                             <input class="w3-check" type="checkbox" v-model="inverseCount" :disabled="variousCounts">
                             <label class="w3-validate">Inverse Count </label>
                             <br>
@@ -128,6 +154,13 @@
                             <br>
                             <input class="w3-check" type="checkbox" v-model="collateGroups">
                             <label class="w3-validate">Collate Groups </label>
+                        </div>
+                        <div class="w3-col w3-quarter">
+                            <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="parseInt(rounds) === 1">
+                            <label class="w3-validate">Round Breaks</label>
+                            <br>
+                            <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="parseInt(rounds) === 1">
+                            <label class="w3-validate">Show Round</label>
                         </div>
                         <div class="w3-col w3-half">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
@@ -215,6 +248,17 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showCenterDot">
                                 <label class="w3-validate">Show Center Dot</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="spinTable">
+                                <label class="w3-validate">Spin Table</label>
+                                <select id="frenzy"
+                                    class="w3-select w3-border w3-padding-small" style="width: 35%"
+                                    v-model="spinTableSpeed">
+                                    <option value="speed1">Low</option>
+                                    <option value="speed2">Medium</option>
+                                    <option value="speed3">High</option>
+                                </select>
+                            </p>
                         </div>
                         <div class="w3-container w3-col w3-third w3-padding-0" style="min-width: 200px;">
                             <p>
@@ -244,7 +288,9 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
                                 <label class="w3-validate">Blind Mode</label> </p>
-                                
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="noErrors">
+                                <label class="w3-validate">No Errors</label> </p>
                         </div>
                     </div>
                 </div>
@@ -253,7 +299,13 @@
                     <table class="w3-table-all w3-large">
                         <tr>
                             <td>Time</td>
-                            <td>{{ stats.timeDiff() }}</td>
+                            <td>{{ stats.resultTimeString() }}</td>
+                        </tr>
+                        <tr
+                            :style="{ fontWeight: stats.totalTime() === personalBests[category()] ? 'bold' : 'normal' }"
+                        >
+                            <td>Personal Best</td>
+                            <td>{{ pbTimeString() }}</td>
                         </tr>
                         <tr>
                             <td>Category</td>
@@ -261,30 +313,43 @@
                         </tr>
                         <tr class="w3-pale-green">
                             <td>Correct Clicks</td>
-                            <td>{{ stats.correctClicks }}</td>
+                            <td>{{ stats.totalCorrectClicks() }}</td>
                         </tr>
                         <tr class="w3-pale-red">
                             <td>Wrong Clicks</td>
-                            <td>{{ stats.wrongClicks }}</td>
+                            <td>{{ stats.totalWrongClicks() }}</td>
                         </tr>
                     </table>
-                    <div class="w3-row w3-col"
-                         style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;"
-                         v-if="stats.clicks.length > 0">
-                        <table class="w3-table-all w3-hoverable w3-centered">
-                            <thead>
-                            <tr class="w3-light-grey">
-                                <th>Group</th>
-                                <th>Number</th>
-                                <th>Time</th>
-                            </tr>
-                            </thead>
-                            <tr v-for="stat in stats.clicks" :class="{'w3-text-red': stat.err}">
-                                <td>{{stat.groupN + 1}}</td>
-                                <td>{{stat.number}}</td>
-                                <td>{{stat.time}}s</td>
-                            </tr>
-                        </table>
+                    <div class="w3-row" v-if="stats.rounds.length === parseInt(rounds)">
+                        <div class="w3-row w3-col"
+                             :class="{'w3-half': parseInt(rounds) > 1}"
+                             style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;">
+                            <table v-for="round in parseInt(rounds)" class="w3-table-all w3-hoverable w3-centered">
+                                <thead>
+                                    <tr class="w3-light-grey" v-if="rounds > 1">
+                                        <th></th>
+                                        <th>Round {{round}} - {{stats.roundTimeString(round)}}s</th>
+                                        <th></th>
+                                    <tr class="w3-light-grey">
+                                        <th>Group</th>
+                                        <th>Number</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tr v-for="stat in stats.roundClicks(round)" :class="{'w3-text-red': stat.err}">
+                                    <td>{{stat.groupN + 1}}</td>
+                                    <td>{{stat.number}}</td>
+                                    <td>{{stat.time}}s</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="w3-row w3-col w3-half"
+                             style="margin-top: 5px"
+                             v-if="parseInt(rounds) > 1 && !gameStarted">
+                            <canvas class="round-graph"
+                                    width="250" height="250"
+                                    ref="roundGraphCanvas" />
+                        </div>
                     </div>
                 </div>
 

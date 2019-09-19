@@ -1,3 +1,5 @@
+const PB_KEY = 'schulte-pbs';
+
 function Cell(number) {
     this.number = number;
     this.symbol = number;
@@ -84,10 +86,30 @@ function ClickStats(groupN, number, time, err, inverse, divergent) {
     this.divergent = divergent;
 }
 
+var timeString = function(diff) {
+    var millis = Math.floor(diff % 1000);
+    diff = diff / 1000;
+    var seconds = Math.floor(diff % 60);
+    diff = diff / 60;
+    var minutes = Math.floor(diff);
+
+    return minutes + ':' +
+           ("0" + seconds).slice (-2) + '.' +
+           ("00" + millis).slice (-3);
+};
+
 var appData = {
     gridSize: 5,
     gridRange: [],
     cells: [],      // array of Cell
+
+    rounds: 1,
+    roundBreaks: true,
+    showRounds: true,
+    showTransitions: true,
+    betweenRounds: false,
+
+    personalBests: {},
 
     groupCount: 1,
     inverseCount: false,
@@ -95,6 +117,9 @@ var appData = {
     variousCounts: false,
     collateGroups: false,
     originalColors: false,
+    spinTable: false,
+    spinTableSpeed: 'speed1',
+    noErrors: false,
     timerMode: false,
     timerMinutes: 5,
     frenzyCount: 3,
@@ -131,6 +156,9 @@ var appData = {
 
     rowHeight: '20%',
     colWidth: '20%',
+    tableWidth: 'calc(100vw - 100px)',
+    tableHeight: 'calc(100vh - 100px)',
+    cellFontSize: 'calc(8vmin - 8px)',
     selectTimeOut: 500,
     selectedTimerId: -1,
     gameTimerId: -1,
@@ -147,6 +175,7 @@ var appData = {
         correctClicks: 0,
         wrongClicks: 0,
         clicks: [], // array of ClickStats
+        rounds: [],
         clear: function () {
             this.startTime = new Date();
             this.stopTime = new Date();
@@ -154,6 +183,7 @@ var appData = {
             this.correctClicks = 0;
             this.wrongClicks = 0;
             this.clicks = [];
+            this.rounds = [];
         },
         addClick: function (groupN, number, err, inverse, divergent) {
             var currTime = new Date();
@@ -161,17 +191,67 @@ var appData = {
             this.clicks.push(new ClickStats(groupN, number, time, err, inverse, divergent));
             this.lastTime = currTime;
         },
-        timeDiff: function () {
-            var diff = (this.stopTime - this.startTime); // milliseconds between
-            var millis = Math.floor(diff % 1000);
-            diff = diff / 1000;
-            var seconds = Math.floor(diff % 60);
-            diff = diff / 60;
-            var minutes = Math.floor(diff);
+        resultTimeString: function () {
+            const rounds = this.rounds.length;
+            if (rounds < appData.rounds) return timeString(0);
+            const total = this.totalTime();
+            const time = timeString(total);
 
-            return minutes + ':' +
-                   ("0" + seconds).slice (-2) + '.' +
-                   ("00" + millis).slice (-3);
+            if (rounds > 1) {
+                const best = timeString(this.bestRoundTime());
+                const avg = timeString(total / rounds);
+                return `${time} (${avg} average, ${best} best)`;
+            }
+
+            return time;
+        },
+        totalCorrectClicks: function() {
+            return this.correctClicks +
+                this.rounds.reduce((a, r) => a + r.correctClicks, 0);
+        },
+        totalWrongClicks: function() {
+            return this.wrongClicks +
+                this.rounds.reduce((a, r) => a + r.wrongClicks, 0);
+        },
+        endRound: function() {
+            const now = new Date();
+            this.rounds.push({
+                startTime: this.startTime,
+                stopTime: now,
+                clicks: this.clicks,
+                correctClicks: this.correctClicks,
+                wrongClicks: this.wrongClicks,
+            });
+            this.startTime = now;
+            this.lastTime = now;
+            this.clicks = [];
+            this.correctClicks = 0;
+            this.wrongClicks = 0;
+        },
+        roundTime: function(round) {
+            const stat = this.rounds[round - 1];
+            return stat ? stat.stopTime - stat.startTime : 0;
+        },
+        roundClicks: function(round) {
+            const stat = this.rounds[round - 1];
+            return stat ? stat.clicks : [];
+        },
+        bestRoundTime: function() {
+            var result = Infinity;
+            for (const round of this.rounds) {
+                result = Math.min(result, round.stopTime - round.startTime);
+            }
+            return result;
+        },
+        roundTimeString: function(round) {
+            return timeString(this.roundTime(round));
+        },
+        totalTime: function() {
+            var result = 0;
+            for (var i = 1; i <= this.rounds.length; i++) {
+                result += this.roundTime(i);
+            }
+            return result;
         }
     }
 };
@@ -192,6 +272,8 @@ vueApp = new Vue({
     data: appData,
     created: function () {
         this.initGame();
+        appData.personalBests =
+            JSON.parse(localStorage.getItem(PB_KEY)) || {};
     },
     mounted: function () {
         this.execDialog('settings');
@@ -199,6 +281,9 @@ vueApp = new Vue({
     updated: function () {
         if (this.dialogShowed && this.mousemapTabVisible) {
             this.drawMousemap();
+        }
+        if (this.dialogShowed && this.statsTabVisible) {
+            this.drawRoundGraph();
         }
     },
     watch: {
@@ -209,6 +294,13 @@ vueApp = new Vue({
             }
             this.rowHeight = 100 / val + '%';
             this.colWidth = 100 / val + '%';
+
+            this.initGame();
+        },
+        rounds: function(val) {
+            if (typeof(val) === 'string') {
+                val = parseInt(val);
+            }
 
             this.initGame();
         },
@@ -258,6 +350,9 @@ vueApp = new Vue({
         hideReact: function () {
             this.initGame();
         }
+        spinTable: function() {
+            this.initGame();
+        },
     },
     computed: {
         clickedCell: function () {
@@ -280,6 +375,7 @@ vueApp = new Vue({
             this.mouseMoves.length = 0;
             this.mouseClicks.length = 0;
             this.mouseTracking = false;
+            this.setTableMargin(this.spinTable ? 100 : 50);
         },
         initTable: function () {
             this.clearIndexes();
@@ -300,12 +396,58 @@ vueApp = new Vue({
             this.startMouseTracking();
             this.gameStarted = true;
         },
+        setTableMargin: function(margin) {
+            document.getElementsByTagName('body')[0].style.margin = `${margin}px`;
+            this.tableWidth = `calc(100vw - ${margin * 2}px)`;
+            this.tableHeight = `calc(100vh - ${margin * 2}px)`;
+            this.cellFontSize = `calc(${Math.floor(18 - 1.25 * this.gridSize)}vmin)`;
+        },
+        breakBetweenRounds: function() {
+            this.stats.stopTime = new Date();
+            this.stats.endRound();
+            this.betweenRounds = true;
+            this.stopMouseTracking();
+            for (var i = 0; i < this.cells.length; i++) {
+                this.cells[i].symbol = '';
+            }
+        },
+        killResultAnimations: function() {
+            this.showTransitions = false;
+            setTimeout(() => this.showTransitions = true, 0);
+        },
+        startNextRound: function() {
+            this.initTable();
+            this.killResultAnimations();
+            this.stats.startTime = new Date();
+            this.stats.lastTime = this.stats.startTime;
+            this.betweenRounds = false;
+            this.restartMouseTracking();
+        },
+        currentRoundNumber: function() {
+            return this.stats.rounds.length +
+                (this.betweenRounds ? 0 : 1);
+        },
         stopGame: function () {
             this.clearIndexes();
             clearTimeout(this.selectedTimerId);
-            this.stats.stopTime = new Date();
             this.gameStarted = false;
             this.stopMouseTracking();
+        },
+        updatePB: function() {
+            const time = this.stats.totalTime();
+            const category = this.category();
+            const currentPB = this.personalBests[category];
+            if (!currentPB || currentPB > time) {
+                this.personalBests[category] = time;
+                localStorage.setItem(
+                    PB_KEY,
+                    JSON.stringify(this.personalBests),
+                );
+            }
+        },
+        pbTimeString: function() {
+            const pb = this.personalBests[this.category()];
+            return pb ? timeString(pb) : '';
         },
         clearIndexes: function () {
             this.hoverIndex = -1;
@@ -314,6 +456,7 @@ vueApp = new Vue({
         },
         setClickedCell: function (cellIdx, event) {
             if (event.button != 0) return;
+            if (this.betweenRounds) return;
             if (this.gameStarted) {
                 this.clickIndex = cellIdx;
                 if (this.showClickResult) {
@@ -350,12 +493,15 @@ vueApp = new Vue({
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
-                        var nextGoal = Math.min(this.cells.length - 1, this.stats.correctClicks + parseInt(this.frenzyCount) - 1);
+                        var nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + parseInt(this.frenzyCount) - 1));
+                        console.log({ nextGoal, cc: this.stats.correctClicks });
                         for (var i=0; i<this.cells.length; i++) {
-                            if (this.cells[i].group == this.goalList[nextGoal][0] && this.cells[i].number == this.goalList[nextGoal][1]) {
-                                if (!(this.frenzyCount == 1 && this.hideReact)) {
+                            if (this.cells[i].group == this.goalList[nextGoal][0] &&
+                                this.cells[i].number == this.goalList[nextGoal][1]) {
+								if (!(this.frenzyCount == 1 && this.hideReact)) {
                                     this.cells[i].symbol = '' + this.cells[i].number;
                                 }
+                                this.cells[i].symbol = '' + this.cells[i].number;
                                 if (this.frenzyCount == 1) {
                                     this.cells[i].isReact = true;
                                 }
@@ -384,14 +530,26 @@ vueApp = new Vue({
                             this.nextNum();
                         }
                     } else {
-                        if (this.stats.correctClicks >= this.cells.length) {
-                            this.stopGame();
-                            this.execDialog('stats');
+                        if (this.stats.correctClicks === this.cells.length) {
+                            if (this.currentRoundNumber() >= this.rounds) {
+                                this.stats.endRound();
+                                this.stopGame();
+                                this.updatePB();
+                                this.execDialog('stats');
+                            } else {
+                                this.breakBetweenRounds();
+                                if (!this.roundBreaks) {
+                                    this.startNextRound();
+                                }
+                            }
                         } else {
                             this.nextNum();
                         }
                     }
                 } else {
+                    if (this.noErrors) {
+                        return this.execDialog('settings');
+                    }
                     if (this.blindMode && this.stats.correctClicks >= 1 && !this.cells[this.clickIndex].traced) {
                         // unclear this cell, but add 10 seconds
                         this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].number + "";
@@ -430,7 +588,7 @@ vueApp = new Vue({
         nextNum: function () {
             var isLast = (this.groups[this.currGroup].lastNumber() == this.groups[this.currGroup].currNum);
             this.groups[this.currGroup].currNum = this.groups[this.currGroup].nextNumber();
-            
+
             if (isLast || this.collateGroups) {
                 this.nextGroup();
             }
@@ -514,7 +672,7 @@ vueApp = new Vue({
                 }
             }
             this.cells = range;
-            
+
             if (this.frenzyMode) {
                 // generate goal list
                 this.goalList = [[0, this.groups[0].currNum]];
@@ -532,12 +690,12 @@ vueApp = new Vue({
                     }
                     this.goalList.push([thisGroup, groupNums[thisGroup]]);
                 }
-                
+
                 // clear symbols
                 for (i=0; i<cellCount; i++) {
                     this.cells[i].symbol = '';
                 }
-                
+
                 // set first few symbols
                 for (i=0; i<this.frenzyCount; i++) {
                     for (g=0; g<cellCount; g++) {
@@ -591,9 +749,18 @@ vueApp = new Vue({
                 this.settingsTabVisible = true;
             }
         },
+        onEsc: function() {
+            if (this.betweenRounds) {
+                this.startNextRound();
+            } else if (this.dialogShowed) {
+                this.hideDialog();
+            } else {
+                this.execDialog('settings');
+            }
+        },
         hideDialog: function () {
             this.dialogShowed = false;
-            if ( ! this.gameStarted) {
+            if (!this.gameStarted) {
                 this.startGame();
             } else {
                 this.restartMouseTracking();
@@ -643,7 +810,7 @@ vueApp = new Vue({
             }
         },
         update69Underline: function () {
-            if (!this.turnSymbols && !this.spinSymbols) return;
+            if (!this.turnSymbols && !this.spinSymbols && !this.spinTable) return;
             const confusing = new Set([6, 9, 66, 99, 68, 98, 86, 89]);
             for (var i = 0; i < this.cells.length; i++) {
                 if (confusing.has(this.cells[i].number)) {
@@ -661,6 +828,10 @@ vueApp = new Vue({
         category: function () {
             // things ignored: collate; original colors; show hover; show click result; show center dot
             var category = this.gridSize + "x" + this.gridSize;
+            if (this.rounds > 1) {
+                category += " " + this.rounds + "r";
+                category += this.roundBreaks ? 'b' : '';
+            }
             if (this.groupCount > 1) {
                 category += " " + this.groupCount + "c";
             }
@@ -677,6 +848,15 @@ vueApp = new Vue({
                 category += " Spin";
             } else if (this.turnSymbols) {
                 category += " Turn";
+            }
+            if (this.spinTable) {
+                category += " Ts";
+                if (this.spinTableSpeed === 'speed1') category += "L";
+                if (this.spinTableSpeed === 'speed2') category += "M";
+                if (this.spinTableSpeed === 'speed3') category += "H";
+            }
+            if (this.noErrors) {
+                category += " NE"
             }
             if (this.frenzyMode) {
                 if (this.frenzyCount == 1) {
@@ -711,6 +891,94 @@ vueApp = new Vue({
                 var nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
                 var ny = (event.clientY - 50) / this.$el.clientHeight;
                 this.mouseMoves.push(new Point(nx, ny));
+            }
+        },
+        drawRoundGraph: function() {
+            const canvas = this.$refs['roundGraphCanvas'];
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
+                const { width, height } = canvas;
+
+                const roundTimes = this.stats.rounds.map(r => r.stopTime - r.startTime);
+                const rounds = roundTimes.length;
+                const min = roundTimes.reduce((r, t) => Math.min(r, t));
+                const tMin = 50 * (Math.floor(min / 50) - 1);
+                const max = roundTimes.reduce((r, t) => Math.max(r, t));
+                const tMax = 50 * (Math.ceil(max / 50) + 1);
+                const tAvg = roundTimes.reduce((a, b) => a + b) / rounds;
+
+                const x0 = 20 + Math.max(Math.floor(Math.log10(tMax) * 4), 4);
+                const y0 = 10;
+                const gWidth = width - x0;
+                const gHeight = height - y0 * 2;
+                ctx.clearRect(0, 0, width, height);
+
+                // axes
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'black';
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x0, y0 + gHeight);
+                ctx.lineTo(x0 + gWidth, y0 + gHeight);
+                ctx.stroke();
+
+                // vertical axis labels
+                const tLabels = 5;
+                const tMinY = y0 + gHeight - 6;
+                const tMaxY = y0 + 6;
+                const dt = (tMax - tMin) / (tLabels - 1);
+                const dy = (tMaxY - tMinY) / (tLabels - 1);
+
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'end';
+                for (let i = 0; i < tLabels; i++) {
+                    let text = (Math.floor(tMin + i * dt) / 1000).toString();
+                    text = text.includes('.') ? text : text + '.';
+                    const trailingZeros = Math.max(0, 3 - (text.length - 1 - text.indexOf('.')));
+                    text = text + '0'.repeat(trailingZeros);
+                    ctx.fillText(text, x0 - 4, tMinY + i * dy);
+                }
+
+                const yForT = t => 4 + gHeight - (t - tMin) / (tMax - tMin) * (tMinY - tMaxY);
+
+                // average line
+                const tAvgY = yForT(tAvg);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                ctx.setLineDash([10, 10]);
+                ctx.beginPath();
+                ctx.moveTo(x0, tAvgY);
+                ctx.lineTo(x0 + gWidth, tAvgY);
+                ctx.stroke();
+
+                // graph lines
+                const px0 = x0 + 10;
+                const dx = (gWidth - 20) / (rounds - 1);
+                const points = [];
+                ctx.setLineDash([0, 0]);
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'blue';
+                ctx.fillStyle = 'blue';
+                roundTimes.forEach((time, i) => {
+                    const x = px0 + i * dx;
+                    const y = yForT(time);
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    points.push([x, y]);
+                });
+                ctx.stroke();
+
+                // graph points
+                if (points.length <= 50) {
+                    const r = rounds <= 10 ? 4 : 2;
+                    points.forEach(([x, y]) => {
+                        ctx.beginPath();
+                        ctx.arc(x, y, r, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        ctx.fill();
+                    });
+                }
             }
         },
         drawMousemap: function () {
