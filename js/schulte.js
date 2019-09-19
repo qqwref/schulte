@@ -150,6 +150,8 @@ var appData = {
     hideReact: false,
     hoverReact: false,
     blindMode: false,
+    tableSize: 600,
+    fontSize: 100,
 
     mouseTracking: false,
     mouseMoves: [],   // array of Point
@@ -379,7 +381,7 @@ vueApp = new Vue({
             this.mouseMoves.length = 0;
             this.mouseClicks.length = 0;
             this.mouseTracking = false;
-            this.setTableMargin(this.spinTable ? 100 : 50);
+            this.setTableMargin(50);
         },
         initTable: function () {
             this.clearIndexes();
@@ -402,9 +404,9 @@ vueApp = new Vue({
         },
         setTableMargin: function(margin) {
             document.getElementsByTagName('body')[0].style.margin = `${margin}px`;
-            this.tableWidth = `calc(100vw - ${margin * 2}px)`;
-            this.tableHeight = `calc(100vh - ${margin * 2}px)`;
-            this.cellFontSize = `calc(${Math.floor(18 - 1.25 * this.gridSize)}vmin)`;
+            this.tableWidth = parseInt(this.tableSize) + "px";
+            this.tableHeight = parseInt(this.tableSize) + "px";
+            this.cellFontSize = (parseInt(this.tableSize) * this.fontSize / this.gridSize / 133) + "px";
         },
         breakBetweenRounds: function() {
             this.stats.stopTime = new Date();

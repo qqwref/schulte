@@ -20,14 +20,15 @@
          @mousemove="appendMouseMove($event)"
          @keyup.esc="onEsc()"
          @keyup.enter="if(dialogShowed) hideDialog()"
-         :class="[spinTable ? gameStarted && ('spin-' + spinTableSpeed) : '']"
-         :style="{ width: tableWidth, height: tableHeight }"
          v-focus v-cloak>
         <div class="round-display"
             v-if="gameStarted && showRounds && parseInt(rounds) > 1"
         >
             {{currentRoundNumber()}} / {{rounds}}
         </div>
+        <div class="schulte"
+            :class="[spinTable ? gameStarted && ('spin-' + spinTableSpeed) : '']"
+            :style="{ width: tableWidth, height: tableHeight }">
         <div v-for="r in gridRange" class="row" :style="{height: rowHeight}">
             <div v-for="c in gridRange" class="cell"
                  :style="{width: colWidth, fontSize: cellFontSize }"
@@ -48,6 +49,7 @@
                     {{ cells[r*gridSize + c].symbol }}
                 </span>
             </div>
+        </div>
         </div>
 
         <div class="center-dot" v-if="showCenterDot"></div>
@@ -248,6 +250,14 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="showCenterDot">
                                 <label class="w3-validate">Show Center Dot</label> </p>
+                            <p>
+                                <label class="w3-validate">Size: </label>
+                                <input v-model="tableSize" style="width: 50%">
+                                <label class="w3-validate">px</label> </p>
+                            <p>
+                                <label class="w3-validate">Font: </label>
+                                <input v-model="fontSize" style="width: 50%">
+                                <label class="w3-validate">%</label> </p>
                         </div>
                         
                         <div class="w3-container w3-col w3-third w3-padding-0">
