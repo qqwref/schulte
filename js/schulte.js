@@ -468,12 +468,6 @@ vueApp = new Vue({
             if (this.gameStarted && this.hoverMode) {
                 this.clickIndex = cellIdx;
                 if (this.isCellCorrect(this.clickIndex)) {
-                    if (this.clickSound) {
-                        // play click sound and copy so they can overlap
-                        newBoop = this.clickSound.cloneNode();
-                        newBoop.play();
-                        newBoop = null;
-                    }
                     this.nextTurn();
                 }
             }
@@ -482,12 +476,6 @@ vueApp = new Vue({
             if (event.button != 0) return;
             if (this.betweenRounds) return;
             if (this.gameStarted) {
-                if (this.clickSound) {
-                    // play click sound and copy so they can overlap
-                    newBoop = this.clickSound.cloneNode();
-                    newBoop.play();
-                    newBoop = null;
-                }
                 this.clickIndex = cellIdx;
                 if (this.showClickResult) {
                     if (this.showClickAnimation) {
@@ -512,6 +500,12 @@ vueApp = new Vue({
         nextTurn: function () {
             if (this.clickIndex >= 0 && this.clickIndex < this.cells.length) {
                 if (this.isCellCorrect(this.clickIndex)) {
+                    if (this.clickSound && this.useClickSound) {
+                        // play click sound and copy so they can overlap
+                        newBoop = this.clickSound.cloneNode();
+                        newBoop.play();
+                        newBoop = null;
+                    }
                     this.stats.correctClicks ++;
                     this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, false, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
                     this.cells[this.clickIndex].traced = true;
