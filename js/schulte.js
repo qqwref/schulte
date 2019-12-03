@@ -120,6 +120,7 @@ var appData = {
     spinTable: false,
     spinTableSpeed: 'speed1',
     noErrors: false,
+    useClickSound: false,
     timerMode: false,
     timerMinutes: 5,
     frenzyCount: 3,
@@ -170,6 +171,7 @@ var appData = {
     settingsTabVisible: true,
     statsTabVisible: false,
     mousemapTabVisible: false,
+    clickSound: false,
 
     stats: {
         startTime: new Date(),
@@ -275,6 +277,7 @@ vueApp = new Vue({
     data: appData,
     created: function () {
         this.initGame();
+        this.clickSound = new Audio("js/bop.mp3");
         appData.personalBests =
             JSON.parse(localStorage.getItem(PB_KEY)) || {};
     },
@@ -465,6 +468,12 @@ vueApp = new Vue({
             if (this.gameStarted && this.hoverMode) {
                 this.clickIndex = cellIdx;
                 if (this.isCellCorrect(this.clickIndex)) {
+                    if (this.clickSound) {
+                        // play click sound and copy so they can overlap
+                        newBoop = this.clickSound.cloneNode();
+                        newBoop.play();
+                        newBoop = null;
+                    }
                     this.nextTurn();
                 }
             }
@@ -473,6 +482,12 @@ vueApp = new Vue({
             if (event.button != 0) return;
             if (this.betweenRounds) return;
             if (this.gameStarted) {
+                if (this.clickSound) {
+                    // play click sound and copy so they can overlap
+                    newBoop = this.clickSound.cloneNode();
+                    newBoop.play();
+                    newBoop = null;
+                }
                 this.clickIndex = cellIdx;
                 if (this.showClickResult) {
                     if (this.showClickAnimation) {
