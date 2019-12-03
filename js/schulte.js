@@ -148,7 +148,7 @@ var appData = {
     frenzyMode: false,
     goalList: [[0, 1]],
     hideReact: false,
-    hoverReact: false,
+    hoverMode: false,
     blindMode: false,
     tableSize: 600,
     fontSize: 100,
@@ -353,7 +353,7 @@ vueApp = new Vue({
         hideReact: function () {
             this.initGame();
         },
-        hoverReact: function () {
+        hoverMode: function () {
             this.initGame();
         },
         spinTable: function() {
@@ -462,7 +462,7 @@ vueApp = new Vue({
         },
         setHoveredCell: function (cellIdx, event) {
             this.hoveredCell = cellIdx;
-            if (this.gameStarted && this.frenzyMode && this.frenzyCount == 1 && this.hoverReact) {
+            if (this.gameStarted && this.hoverMode) {
                 this.clickIndex = cellIdx;
                 if (this.isCellCorrect(this.clickIndex)) {
                     this.nextTurn();
@@ -875,14 +875,14 @@ vueApp = new Vue({
             if (this.frenzyMode) {
                 if (this.frenzyCount == 1) {
                     category += " React";
-                    if (this.hoverReact) {
-                        category += " Hover";
-                    }
                 } else {
                     category += " Frenzy " + this.frenzyCount;
                 }
             } else if (this.blindMode) {
                 category += " Blind";
+            }
+            if (this.hoverMode) {
+                category += " Hover";
             }
             if (!this.showTrace) {
                 category += " -SC";
