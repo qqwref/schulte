@@ -252,14 +252,14 @@
                                 <label class="w3-validate">Show Center Dot</label> </p>
                             <p>
                                 <label class="w3-validate">Size: </label>
-                                <input v-model="tableSize" style="width: 50%">
+                                <input id="tableSize" v-model="tableSize" style="width: 50%">
                                 <label class="w3-validate">px</label> </p>
                             <p>
                                 <label class="w3-validate">Font: </label>
-                                <input v-model="fontSize" style="width: 50%">
+                                <input id="fontSize" v-model="fontSize" style="width: 50%">
                                 <label class="w3-validate">%</label> </p>
                         </div>
-                        
+
                         <div class="w3-container w3-col w3-third w3-padding-0">
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="turnSymbols">
@@ -285,7 +285,7 @@
                                 <input class="w3-check" type="checkbox" v-model="useClickSound">
                                 <label class="w3-validate">Click Sound</label> </p>
                         </div>
-                        
+
                         <div class="w3-container w3-col w3-third w3-padding-0">
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="shuffleSymbols">

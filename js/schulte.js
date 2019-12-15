@@ -362,6 +362,12 @@ vueApp = new Vue({
         spinTable: function() {
             this.initGame();
         },
+        tableSize: function() {
+            setTimeout(() => document.getElementById('tableSize').focus(), 0);
+        },
+        fontSize: function() {
+            setTimeout(() => document.getElementById('fontSize').focus(), 0);
+        },
     },
     computed: {
         clickedCell: function () {
