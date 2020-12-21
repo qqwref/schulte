@@ -38,7 +38,7 @@
                  :class="{'normal-cell' : (!showHover && !showClickAnimation) || !gameStarted,
                           'hovered-cell': showHover && (hoveredCell == r*gridSize + c) && gameStarted,
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
-                          'wrong-cell'  : (showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted && !(frenzyMode && frenzyCount == 1)) || cells[r*gridSize + c].isReact,
+                          'wrong-cell'  : (showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted && !(frenzyMode && frenzyCount == 1) && !hoverMode) || cells[r*gridSize + c].isReact,
                           'traced-cell' : tracedCell(r*gridSize + c) && showTrace &&  gameStarted,
                           'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1) && showTransitions
                           }"
