@@ -153,6 +153,7 @@ var appData = {
     blindMode: false,
     tableSize: 600,
     fontSize: 100,
+    nOffset: 0,
 
     mouseTracking: false,
     mouseMoves: [],   // array of Point
@@ -367,6 +368,9 @@ vueApp = new Vue({
         },
         fontSize: function() {
             setTimeout(() => document.getElementById('fontSize').focus(), 0);
+        },
+        nOffset: function() {
+            setTimeout(() => document.getElementById('nOffset').focus(), 0);
         },
     },
     computed: {
@@ -694,6 +698,9 @@ vueApp = new Vue({
                 for (i = 1; i <= this.groups[g].size; i++) {
                     cell = new Cell(i);
                     cell.group = g;
+                    if (!isNaN(parseInt(this.nOffset))) {
+                        cell.symbol = (cell.number + parseInt(this.nOffset)) + "";
+                    }
                     if (this.colorGroups) {
                         cell.colorStyle = this.groupColorStyles[g];
                     };
@@ -904,6 +911,9 @@ vueApp = new Vue({
             }
             if (!this.clearCorrect) {
                 category += " -EC";
+            }
+            if (!isNaN(parseInt(this.nOffset)) && parseInt(this.nOffset) != 0) {
+                category += " Offset " + parseInt(this.nOffset);
             }
             return category;
         },
