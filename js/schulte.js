@@ -151,6 +151,7 @@ var appData = {
     hideReact: false,
     hoverMode: false,
     blindMode: false,
+    mathMode: false,
     tableSize: 600,
     fontSize: 100,
     nOffset: 0,
@@ -746,6 +747,57 @@ vueApp = new Vue({
                     }
                 }
             }
+            if (this.mathMode) {
+                // generate list of numbers
+                var numberList = [[0, "0"]];
+                integerMax = Math.floor(this.gridSize * this.gridSize / 2);
+                for (i=1; i<=integerMax; i++) {
+                    numberList.push([i, i+""]);
+                    numberList.push([-i, "-"+i]);
+                }
+                fractionMax = Math.max(9, 2 * this.gridSize);
+                for (i=2; i<=fractionMax; i++) {
+                    numberList.push([1/i, "1/" + i]);
+                    numberList.push([-1/i, "-1/" + i]);
+                    if (i > 2) {
+                        numberList.push([1 - (1/i), (i-1) + "/" + i]);
+                        numberList.push([-1 + (1/i), "-" + (i-1) + "/" + i]);
+                    }
+                }
+                for (i=3; i<=integerMax; i += 2) {
+                    numberList.push([i/2, i+"/2"]);
+                    numberList.push([-i/2, "-"+i+"/2"]);
+                }
+                if (this.gridSize >= 5) {
+                    numberList.push([2.71828, "e"]);
+                    numberList.push([-2.71828, "-e"]);
+                    numberList.push([3.14159, "π"]);
+                    numberList.push([-3.14159, "-π"]);
+                    numberList.push([6.28318, "2π"]);
+                    numberList.push([-6.28318, "-2π"]);
+                }
+                console.log(numberList);
+                
+                // choose random values
+                for (var i=0; i<numberList.length; i++) {
+                    var other = i + Math.floor(Math.random() * (numberList.length - i));
+                    if (other != i) {
+                        var temp = numberList[i];
+                        numberList[i] = numberList[other];
+                        numberList[other] = temp;
+                    }
+                }
+                numberList = numberList.slice(0, this.gridSize * this.gridSize);
+                function comparePairs(a, b) {
+                    return a[0] - b[0];
+                };
+                numberList.sort(comparePairs);
+                
+                // set cells' symbols to those values
+                for (i=0; i<cellCount; i++) {
+                    this.cells[i].symbol = numberList[this.cells[i].number - 1][1];
+                }
+            }
         },
         shuffleCells: function () {
             for (var i=0; i<this.cells.length; i++) {
@@ -914,6 +966,9 @@ vueApp = new Vue({
             }
             if (!isNaN(parseInt(this.nOffset)) && parseInt(this.nOffset) != 0) {
                 category += " Offset " + parseInt(this.nOffset);
+            }
+            if (this.mathMode) {
+                category += " Math";
             }
             return category;
         },
