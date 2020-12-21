@@ -529,7 +529,6 @@ vueApp = new Vue({
                             this.cells[this.clickIndex].isReact = false;
                         }
                         var nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + parseInt(this.frenzyCount) - 1));
-                        console.log({ nextGoal, cc: this.stats.correctClicks });
                         for (var i=0; i<this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
@@ -776,7 +775,6 @@ vueApp = new Vue({
                     numberList.push([6.28318, "2π"]);
                     numberList.push([-6.28318, "-2π"]);
                 }
-                console.log(numberList);
                 
                 // choose random values
                 for (var i=0; i<numberList.length; i++) {
