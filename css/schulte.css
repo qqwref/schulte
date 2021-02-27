@@ -293,8 +293,25 @@ select::-ms-expand {
     animation: spin 2s linear infinite;
 }
 
+.spin-speed4 {
+    animation: spinrev 4s linear infinite;
+}
+
+.spin-speed5 {
+    animation: spinrev 3s linear infinite;
+}
+
+.spin-speed6 {
+    animation: spinrev 2s linear infinite;
+}
+
 @keyframes spin {
     100% {
         transform: translate(-50%,-50%) rotate(360deg);
     }
+}
+
+@keyframes spinrev {
+    0% {transform: translate(-50%,-50%) rotate(360deg);}
+    100% {transform: translate(-50%,-50%) rotate(0deg);}
 }

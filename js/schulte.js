@@ -940,6 +940,9 @@ vueApp = new Vue({
                 if (this.spinTableSpeed === 'speed1') category += "L";
                 if (this.spinTableSpeed === 'speed2') category += "M";
                 if (this.spinTableSpeed === 'speed3') category += "H";
+                if (this.spinTableSpeed === 'speed4') category += "CL";
+                if (this.spinTableSpeed === 'speed5') category += "CM";
+                if (this.spinTableSpeed === 'speed6') category += "CH";
             }
             if (this.noErrors) {
                 category += " NE"
