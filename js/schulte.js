@@ -844,6 +844,10 @@ vueApp = new Vue({
                 this.execDialog('settings');
             }
         },
+        onSpace: function() {
+            this.dialogShowed = false;
+            this.startGame();
+        },
         hideDialog: function () {
             this.dialogShowed = false;
             if (!this.gameStarted) {
