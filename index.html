@@ -19,7 +19,7 @@
          tabindex="-1"
          @mousemove="appendMouseMove($event)"
          @keyup.esc="onEsc()"
-         @keyup.space="onSpace()"
+         @keydown.space="onSpace()"
          @keyup.enter="if(dialogShowed) hideDialog()"
          v-focus v-cloak>
         <div class="round-display"
