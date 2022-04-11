@@ -121,6 +121,8 @@ var appData = {
     spinTableSpeed: 'speed1',
     noErrors: false,
     useClickSound: false,
+    startOnClick: false,
+    hasClickedYet: false,
     timerMode: false,
     timerMinutes: 5,
     frenzyCount: 3,
@@ -396,6 +398,7 @@ vueApp = new Vue({
             this.mouseClicks.length = 0;
             this.mouseTracking = false;
             this.setTableMargin(50);
+            this.hasClickedYet = false;
         },
         initTable: function () {
             this.clearIndexes();
@@ -440,6 +443,7 @@ vueApp = new Vue({
             this.killResultAnimations();
             this.stats.startTime = new Date();
             this.stats.lastTime = this.stats.startTime;
+            this.hasClickedYet = false;
             this.betweenRounds = false;
             this.restartMouseTracking();
         },
@@ -487,6 +491,10 @@ vueApp = new Vue({
             if (event.button != 0) return;
             if (this.betweenRounds) return;
             if (this.gameStarted) {
+                if (this.startOnClick && !this.hasClickedYet) {
+                    this.stats.startTime = new Date();
+                    this.hasClickedYet = true;
+                }
                 this.clickIndex = cellIdx;
                 if (this.showClickResult) {
                     if (this.showClickAnimation) {
@@ -846,7 +854,11 @@ vueApp = new Vue({
         },
         onSpace: function() {
             this.dialogShowed = false;
-            this.startGame();
+            if (this.betweenRounds) {
+                this.startNextRound();
+            } else {
+                this.startGame();
+            }
         },
         hideDialog: function () {
             this.dialogShowed = false;
@@ -968,6 +980,9 @@ vueApp = new Vue({
             }
             if (!this.clearCorrect) {
                 category += " -EC";
+            }
+            if (this.startOnClick) {
+                category += " ST";
             }
             if (!isNaN(parseInt(this.nOffset)) && parseInt(this.nOffset) != 0) {
                 category += " Offset " + parseInt(this.nOffset);
