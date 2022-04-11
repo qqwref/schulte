@@ -153,6 +153,7 @@ var appData = {
     hideReact: false,
     hoverMode: false,
     blindMode: false,
+    flashlightMode: false,
     mathMode: false,
     tableSize: 600,
     fontSize: 100,
@@ -984,6 +985,9 @@ vueApp = new Vue({
             if (this.startOnClick) {
                 category += " ST";
             }
+            if (this.flashlightMode) {
+                category += " FL";
+            }
             if (!isNaN(parseInt(this.nOffset)) && parseInt(this.nOffset) != 0) {
                 category += " Offset " + parseInt(this.nOffset);
             }
@@ -1004,6 +1008,23 @@ vueApp = new Vue({
             this.mouseTracking = false;
         },
         appendMouseMove: function(event) {
+            if (this.flashlightMode) {
+                x = event.x;
+                y = event.y;
+                for (i=0; i<this.gridSize; i++) {
+                    for (j=0; j<this.gridSize; j++) {
+                        elem = document.getElementById("cell."+i+"."+j);
+                        rect = elem.getBoundingClientRect();
+                        cellMidX = rect.x + rect.width/2;
+                        cellMidY = rect.y + rect.height/2;
+                        dist = Math.sqrt((cellMidX - x)*(cellMidX - x) + (cellMidY - y)*(cellMidY - y));
+                        opacity = (this.tableSize * 0.35 - dist) / (this.tableSize * 0.1);
+                        if (opacity > 1) opacity = 1;
+                        if (opacity < 0.5) opacity = 0;
+                        elem.style.opacity = opacity;
+                    }
+                }
+            }
             if (this.mouseTracking) {
                 var nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
                 var ny = (event.clientY - 50) / this.$el.clientHeight;

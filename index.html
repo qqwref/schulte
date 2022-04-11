@@ -46,6 +46,7 @@
                 >
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
+                      :id="'cell.'+r+'.'+c"
                       style="cursor: default;">
                     {{ cells[r*gridSize + c].symbol }}
                 </span>
@@ -283,7 +284,7 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="useClickSound">
                                 <label class="w3-validate">Click Sound</label> </p>
-							<p>
+                            <p>
                                 <input class="w3-check" type="checkbox" v-model="startOnClick">
                                 <label class="w3-validate">Start Timer on Click</label> </p>
                         </div>
@@ -313,6 +314,9 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
                                 <label class="w3-validate">Blind Mode</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="flashlightMode">
+                                <label class="w3-validate">Flashlight Mode</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="mathMode">
                                 <label class="w3-validate">Math Mode</label> </p>
