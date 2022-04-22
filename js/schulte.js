@@ -376,6 +376,16 @@ vueApp = new Vue({
         nOffset: function() {
             setTimeout(() => document.getElementById('nOffset').focus(), 0);
         },
+        flashlightMode: function() {
+            if (!this.flashlightMode) {
+                for (i=0; i<this.gridSize; i++) {
+                    for (j=0; j<this.gridSize; j++) {
+                        elem = document.getElementById("cell."+i+"."+j)
+                        elem.style.opacity = 1;
+                    }
+                }
+            }
+        }
     },
     computed: {
         clickedCell: function () {
