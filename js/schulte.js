@@ -128,7 +128,7 @@ var appData = {
     frenzyCount: 3,
     currGroup: 0,
     colorGroups: false,
-    groupType: 0,
+    groupType: 1,
     groups: [], // array of Group: setups in makeGridCells() method
 
     groupColorStyles: ['color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'],
