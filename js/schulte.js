@@ -103,7 +103,7 @@ const appData = {
     gridRange: [],
     cells: [],      // array of Cell
 
-    rounds: 1,
+    roundCount: 1,
     roundBreaks: true,
     showRounds: true,
     showTransitions: true,
@@ -303,7 +303,7 @@ vueApp = new Vue({
             this.colWidth = 100 / this.gridSize + '%';
             this.initGame();
         },
-        rounds: function(val) {
+        roundCount: function(val) {
             this.initGame();
         },
         groupCount: function () {
@@ -570,7 +570,7 @@ vueApp = new Vue({
                         }
                     } else {
                         if (this.stats.correctClicks === this.cells.length) {
-                            if (this.currentRoundNumber() >= this.rounds) {
+                            if (this.currentRoundNumber() >= this.roundCount) {
                                 this.stats.endRound();
                                 this.stopGame();
                                 this.updatePB();
@@ -914,8 +914,8 @@ vueApp = new Vue({
             let category = "";
             category += this.gridSize + "x" + this.gridSize;
             
-            if (this.rounds > 1) {
-                category += " " + this.rounds + "r";
+            if (this.roundCount > 1) {
+                category += " " + this.roundCount + "r";
                 category += this.roundBreaks ? "b" : "";
             }
             
