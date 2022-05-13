@@ -923,7 +923,7 @@ vueApp = new Vue({
             if (this.originalColors) {
                 this.groupColorStyles = this.originalColorStyles;
             } else {
-                this.groupColorStyles = this.newColourStyles;
+                this.groupColorStyles = this.newColorStyles;
             }
         },
         category: function () {
