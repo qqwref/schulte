@@ -160,7 +160,7 @@
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
                                 <div v-for="r in Array.from({length: groupCount - 1}, (x,i) => (i+1)) "class="color-num"
                                       :style="groupColorStyles[r]"
-                                      v-if="groupCount > r"
+                                      v-if="groupCount >= r"
                                       v-html="groupRange(r)"></div>
                                 <!--<div class="color-num"
                                       :style="groupColorStyles[0]"
