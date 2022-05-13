@@ -23,9 +23,9 @@
          @keyup.16="onShift()"
          v-focus v-cloak>
         <div class="round-display"
-            v-if="gameStarted && showRounds && parseInt(rounds) > 1"
+            v-if="gameStarted && showRounds && roundCount > 1"
         >
-            {{currentRoundNumber()}} / {{rounds}}
+            {{currentRoundNumber()}} / {{roundCount}}
         </div>
         <div class="schulte"
             :class="[spinTable ? gameStarted && ('spin-' + spinTableSpeed) : '']"
