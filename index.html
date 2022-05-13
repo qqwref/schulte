@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/w3.css">
     <link rel="stylesheet" href="css/schulte.css">
     <script src="js/vue.min.js"></script>
-    <title>Schulte Table</title>
+    <title>Schulte Table Test</title>
     <style>
         [v-cloak] {
             display: none;
@@ -108,7 +108,7 @@
                             <select id="rounds"
                                     class="w3-select w3-border w3-padding-small"
                                     style="width:80%"
-                                    v-model="rounds">
+                                    v-model="roundCount">
                                     <option v-for="r in [1, 2, 3, 5, 10, 25, 100]" :value="r">{{r}} round{{r>1 ? "s" : ""}}</option>
                             </select>
                         </div>
@@ -144,10 +144,10 @@
                             <input type="number" id="nOffset" v-model.lazy="nOffset" style="width: 50%"/>
                         </div>
                         <div class="w3-col w3-third">
-                            <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="parseInt(rounds) === 1">
+                            <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="roundCount === 1">
                             <label class="w3-validate">Round Breaks</label>
                             <br>
-                            <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="parseInt(rounds) === 1">
+                            <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="roundCount === 1">
                             <label class="w3-validate">Show Round</label>
                         </div>
                         <div class="w3-col w3-third">
@@ -319,13 +319,13 @@
                             <td>{{ stats.totalWrongClicks() }}</td>
                         </tr>
                     </table>
-                    <div class="w3-row" v-if="stats.rounds.length === parseInt(rounds)">
+                    <div class="w3-row" v-if="stats.rounds.length === roundCount">
                         <div class="w3-row w3-col"
-                             :class="{'w3-half': parseInt(rounds) > 1}"
+                             :class="{'w3-half': roundCount > 1}"
                              style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;">
-                            <table v-for="round in parseInt(rounds)" class="w3-table-all w3-hoverable w3-centered">
+                            <table v-for="round in roundCount" class="w3-table-all w3-hoverable w3-centered">
                                 <thead>
-                                    <tr class="w3-light-grey" v-if="rounds > 1">
+                                    <tr class="w3-light-grey" v-if="roundCount > 1">
                                         <th></th>
                                         <th>Round {{round}} - {{stats.roundTimeString(round)}}s</th>
                                         <th></th>
@@ -344,7 +344,7 @@
                         </div>
                         <div class="w3-row w3-col w3-half"
                              style="margin-top: 5px"
-                             v-if="parseInt(rounds) > 1 && !gameStarted">
+                             v-if="roundCount > 1 && !gameStarted">
                             <canvas class="round-graph"
                                     width="250" height="250"
                                     ref="roundGraphCanvas" />
