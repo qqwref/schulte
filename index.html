@@ -141,7 +141,7 @@
                             <label class="w3-validate">Collate Groups </label>
                             <br>
                             <label class="w3-validate">Offset: </label>
-                            <input id="nOffset" v-model="nOffset" style="width: 50%"/>
+                            <input type="nubmber" id="nOffset" v-model.lazy="nOffset" style="width: 50%"/>
                         </div>
                         <div class="w3-col w3-third">
                             <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="parseInt(rounds) === 1">
@@ -219,11 +219,11 @@
                                 <label class="w3-validate">Show Center Dot</label> </p>
                             <p>
                                 <label class="w3-validate">Size: </label>
-                                <input id="tableSize" v-model="tableSize" style="width: 50%">
+                                <input type="number" id="tableSize" v-model.lazy="tableSize" style="width: 50%">
                                 <label class="w3-validate">px</label> </p>
                             <p>
                                 <label class="w3-validate">Font: </label>
-                                <input id="fontSize" v-model="fontSize" style="width: 50%">
+                                <input type="number" id="fontSize" v-model.lazy="fontSize" style="width: 50%">
                                 <label class="w3-validate">%</label> </p>
                         </div>
 
