@@ -158,12 +158,13 @@
                         </div>
                         <div class="w3-col w3-third">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
-                                <div class="color-num"
-                                      v-if="groupCount == 1"
-                                      v-html="groupRange(0)"></div>
-                                <div class="color-num"
+                                <div v-for="r in Array.from({length: groupCount - 1}, (x,i) => (i+1)) "class="color-num"
+                                      :style="groupColorStyles[r]"
+                                      v-if="groupCount > r"
+                                      v-html="groupRange(r)"></div>
+                                <!--<div class="color-num"
                                       :style="groupColorStyles[0]"
-                                      v-if="groupCount > 1"
+                                      v-if="groupCount == 1"
                                       v-html="groupRange(0)"></div>
                                 <div class="color-num"
                                       :style="groupColorStyles[1]"
@@ -180,7 +181,7 @@
                                 <div class="color-num"
                                       :style="groupColorStyles[4]"
                                       v-if="groupCount > 4"
-                                      v-html="groupRange(4)"></div>
+                                      v-html="groupRange(4)"></div>-->
                                 <br>
                                 <input class="w3-check" type="checkbox" v-model="originalColors" style="margin-top: 5px;">
                                 <label class="w3-validate">Original Colors </label>
