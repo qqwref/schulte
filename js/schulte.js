@@ -129,7 +129,9 @@ var appData = {
     currGroup: 0,
     groups: [], // array of Group: setups in makeGridCells() method
 
-    groupColorStyles: ['color: orange', 'color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'],
+    groupColorStyles: ['color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'],
+    newColorStyles: ['color: orange', 'color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'],
+    originalColorStyles: ['color: black', 'color: green', 'color: red', 'color: blue', 'color: magenta', 'color: brown'],
 
     gameStarted: false,
 
@@ -919,9 +921,9 @@ vueApp = new Vue({
         },
         updateColorStyles: function () {
             if (this.originalColors) {
-                this.groupColorStyles = ['color: black', 'color: green', 'color: red', 'color: blue', 'color: magenta', 'color: brown'];
+                this.groupColorStyles = this.originalColorStyles;
             } else {
-                this.groupColorStyles = ['color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'];
+                this.groupColorStyles = this.newColourStyles;
             }
         },
         category: function () {
