@@ -17,12 +17,17 @@
     background-color: #ccc;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .allowCopy {
     user-select: text;
 }
 
 body {
-    margin: 50px;
     font-family: Arial, Helvetica, sans-serif;
     -webkit-user-select: none;
     -moz-user-select: -moz-none;
@@ -48,6 +53,13 @@ select::-ms-expand {
     overflow-x: hidden;
     width: 100%;
     height: 100%;
+}
+
+.dialog {
+    min-width: 350px;
+    max-width: 800px;
+    max-height: 80vh;
+    top:10vh;
 }
 
 .schulte {
