@@ -131,7 +131,7 @@ var appData = {
     groupType: 1,
     groups: [], // array of Group: setups in makeGridCells() method
 
-    groupColorStyles: ['color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'],
+    groupColorStyles: ['color: orange', 'color: black', 'color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'],
 
     gameStarted: false,
 
