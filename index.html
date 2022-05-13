@@ -158,7 +158,7 @@
                         </div>
                         <div class="w3-col w3-third">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
-                                <div v-for="r in Array.from({length: groupCount - 1}, (x,i) => (i+1)) "class="color-num"
+                                <div v-for="r in Array.from({length: groupColorStyles.length}, (x,i) => (i+1)) "class="color-num"
                                       :style="groupColorStyles[r-1]"
                                       v-if="groupCount > r-1"
                                       v-html="groupRange(r-1)"></div>
