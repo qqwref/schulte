@@ -298,21 +298,12 @@ vueApp = new Vue({
         }
     },
     watch: {
-        gridSize: function (val) {
-            if (typeof(val) === 'string') {
-                this.gridSize = parseInt(val); // recursion !!!
-                return;
-            }
-            this.rowHeight = 100 / val + '%';
-            this.colWidth = 100 / val + '%';
-
+        gridSize: function () {
+            this.rowHeight = 100 / this.gridSize + '%';
+            this.colWidth = 100 / this.gridSize + '%';
             this.initGame();
         },
         rounds: function(val) {
-            if (typeof(val) === 'string') {
-                val = parseInt(val);
-            }
-
             this.initGame();
         },
         groupCount: function () {
@@ -358,9 +349,15 @@ vueApp = new Vue({
             this.initGame();
         },
         tableSize: function() {
+            if (this.tableSize <= 0) {
+                this.tableSize = 600;
+            };
             setTimeout(() => document.getElementById('tableSize').focus(), 0);
         },
         fontSize: function() {
+            if (this.fontSize <= 0) {
+                this.fontSize = 100;
+            };
             setTimeout(() => document.getElementById('fontSize').focus(), 0);
         },
         nOffset: function() {
@@ -422,9 +419,9 @@ vueApp = new Vue({
         },
         setTableMargin: function(margin) {
             document.getElementsByTagName('body')[0].style.margin = `${margin}px`;
-            this.tableWidth = parseInt(this.tableSize) + "px";
-            this.tableHeight = parseInt(this.tableSize) + "px";
-            this.cellFontSize = (parseInt(this.tableSize) * this.fontSize / this.gridSize / 133) + "px";
+            this.tableWidth = this.tableSize + "px";
+            this.tableHeight = this.tableSize + "px";
+            this.cellFontSize = (this.tableSize * this.fontSize / this.gridSize / 133) + "px";
         },
         breakBetweenRounds: function() {
             this.stats.stopTime = new Date();
@@ -537,7 +534,7 @@ vueApp = new Vue({
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
-                        var nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + parseInt(this.frenzyCount) - 1));
+                        var nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + this.frenzyCount - 1));
                         for (var i=0; i<this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
@@ -707,9 +704,7 @@ vueApp = new Vue({
                 for (i = 1; i <= this.groups[g].size; i++) {
                     cell = new Cell(i);
                     cell.group = g;
-                    if (!isNaN(parseInt(this.nOffset))) {
-                        cell.symbol = (cell.number + parseInt(this.nOffset)) + "";
-                    }
+                    cell.symbol = cell.number + this.nOffset;
                     cell.colorStyle = this.groupColorStyles[g];
                     range.push(cell);
                 }
@@ -862,12 +857,6 @@ vueApp = new Vue({
                 this.restartMouseTracking();
             }
         },
-        changeGridSize: function (event) {
-            var val = parseInt(event.target.value);
-            if (!isNaN(val) && val >= 2 && val <= 9) {
-                this.gridSize = val;
-            }
-        },
         updateSymbolSpins: function () {
             for (var i = 0; i < this.cells.length; i++) {
                 this.cells[i].cssClasses['spin-left'] = false;
@@ -981,8 +970,8 @@ vueApp = new Vue({
             if (this.flashlightMode) {
                 category += " FL";
             }
-            if (!isNaN(parseInt(this.nOffset)) && parseInt(this.nOffset) != 0) {
-                category += " Offset " + parseInt(this.nOffset);
+            if (this.nOffset != 0) {
+                category += " Offset " + this.nOffset;
             }
             if (this.mathMode) {
                 category += " Math";
