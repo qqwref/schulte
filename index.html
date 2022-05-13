@@ -109,13 +109,14 @@
                                     class="w3-select w3-border w3-padding-small"
                                     style="width:80%"
                                     v-model="rounds">
-                                    <option value="1">1 round</option>
+                                    <option v-for="r in [1, 2, 3, 5, 10, 25, 100]" :value="r">{{r}} round{{r>1 ? "s" : ""}}</option>
+                                    <!--<option value="1">1 round</option>
                                     <option value="2">2 rounds</option>
                                     <option value="3">3 rounds</option>
                                     <option value="5">5 rounds</option>
                                     <option value="10">10 rounds</option>
                                     <option value="25">25 rounds</option>
-                                    <option value="100">100 rounds</option>
+                                    <option value="100">100 rounds</option>-->
                             </select>
                         </div>
 
@@ -162,26 +163,6 @@
                                       :style="groupColorStyles[r-1]"
                                       v-if="groupCount > r-1"
                                       v-html="groupRange(r-1)"></div>
-                                <!--<div class="color-num"
-                                      :style="groupColorStyles[0]"
-                                      v-if="groupCount == 1"
-                                      v-html="groupRange(0)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[1]"
-                                      v-if="groupCount > 1"
-                                      v-html="groupRange(1)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[2]"
-                                      v-if="groupCount > 2"
-                                      v-html="groupRange(2)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[3]"
-                                      v-if="groupCount > 3"
-                                      v-html="groupRange(3)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[4]"
-                                      v-if="groupCount > 4"
-                                      v-html="groupRange(4)"></div>-->
                                 <br>
                                 <input class="w3-check" type="checkbox" v-model="originalColors" style="margin-top: 5px;">
                                 <label class="w3-validate">Original Colors </label>
