@@ -506,9 +506,13 @@ vueApp = new Vue({
 
                 // append mouseClick
                 if (this.mouseTracking) {
-                    const nx = (event.pageX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
-                    const ny = (event.pageY - 50) / this.$el.clientHeight;
-                    this.mouseClicks.push(new Click(nx, ny, this.isCellCorrect(this.clickIndex)));
+                    const shiftX = (window.innerWidth - this.tableSize) / 2;
+                    const shiftY = (window.innerHeight - this.tableSize) / 2;
+                    const nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
+                    const ny = (event.clientY - shiftY) / this.tableSize;
+                    this.mouseClicks.push(
+                        new Click(nx, ny, this.isCellCorrect(this.clickIndex))
+                    );
                 }
 
                 this.nextTurn();
@@ -999,9 +1003,13 @@ vueApp = new Vue({
                 }
             }
             if (this.mouseTracking) {
-                const nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
-                const ny = (event.clientY - 50) / this.$el.clientHeight;
-                this.mouseMoves.push(new Point(nx, ny));
+                const shiftX = (window.innerWidth - this.tableSize) / 2;
+                const shiftY = (window.innerHeight - this.tableSize) / 2;
+                const nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
+                const ny = (event.clientY - shiftY) / this.tableSize;
+                this.mouseMoves.push(
+                    new Point(nx, ny)
+                );
             }
         },
         drawRoundGraph: function() {
@@ -1101,7 +1109,7 @@ vueApp = new Vue({
                     const W = canvas.width;
                     const H = canvas.height;
                     ctx.fillStyle = 'white';
-                    ctx.clearRect(0, 0, W, H);
+                    ctx.fillRect(0, 0, W, H);
 
                     this.drawMousemapGrid(ctx, W, H);
                     this.drawMousemapMoves(ctx, W, H);
@@ -1117,10 +1125,10 @@ vueApp = new Vue({
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 for (let i = 1; i < this.gridSize; i ++) {
-                    ctx.moveTo(i*colW, 0);
-                    ctx.lineTo(i*colW, H);
-                    ctx.moveTo(0, i*rowH);
-                    ctx.lineTo(W, i*rowH);
+                    ctx.moveTo(i * colW, 0);
+                    ctx.lineTo(i * colW, H);
+                    ctx.moveTo(0, i * rowH);
+                    ctx.lineTo(W, i * rowH);
                 }
                 ctx.stroke();
                 ctx.closePath();
@@ -1131,7 +1139,7 @@ vueApp = new Vue({
                 ctx.beginPath();
                 ctx.strokeStyle = '#1f6ef7'; //'#f78383';
                 ctx.lineWidth = 2;
-                for (let i = 0; i + 1 < this.mouseMoves.length; i ++) {
+                for (let i = 0; i < this.mouseMoves.length - 1; i++) {
                     const x0 = this.mouseMoves[i].x * W;
                     const y0 = this.mouseMoves[i].y * H;
                     const x1 = this.mouseMoves[i+1].x * W;
