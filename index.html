@@ -46,8 +46,7 @@
                 >
                 <span :class="[cells[r*gridSize + c].cssClasses]"
                       :style="cells[r*gridSize + c].colorStyle"
-                      :id="'cell.'+r+'.'+c"
-                      style="cursor: default;">
+                      :id="'cell.'+r+'.'+c">
                     {{ cells[r*gridSize + c].symbol }}
                 </span>
             </div>
@@ -329,7 +328,7 @@
                                         <th>Time</th>
                                     </tr>
                                 </thead>
-                                <tr v-for="stat in stats.roundClicks(round)" :class="{'w3-text-red': stat.err}">
+                                <tr v-for="stat in stats.roundClicks(round)" :style="{groupColorStyles[stat.groupN]}">
                                     <td>{{stat.groupN + 1}}</td>
                                     <td>{{stat.number}}</td>
                                     <td>{{stat.time}}s</td>
