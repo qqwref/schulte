@@ -58,8 +58,8 @@ select::-ms-expand {
 .dialog {
     min-width: 350px;
     max-width: 800px;
-    max-height: 86vh;
-    top:7vh;
+    max-height: 80vh;
+    top:10vh;
 }
 
 .schulte {
