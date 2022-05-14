@@ -59,14 +59,8 @@
         <div class="w3-modal"
              :class="[dialogShowed ? 'display-block' : 'display-none']" style="padding:0!important">
             <div class="dialog w3-modal-content w3-card-4 w3-animate-zoom">
-                <header class="w3-container w3-light-grey w3-center">
-                    <button type="button"
-                            class="w3-container w3-blue w3-center"
-                            style="width: 100%; height: 100%"
-                            @click="hideDialog(); startGame()"
-                            ref="btn">
-                        Start Schulte Table Test
-                    </button>
+                <header class="w3-container w3-blue w3-center" @click="hideDialog(); startGame()">
+                    <h2>Schulte Table Test</h2>
                 </header>
 
                 <div class="w3-bar w3-light-grey w3-border-bottom">
