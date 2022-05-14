@@ -353,12 +353,14 @@ vueApp = new Vue({
                 this.tableSize = 600;
             };
             setTimeout(() => document.getElementById('tableSize').focus(), 0);
+            this.initGame();
         },
         fontSize: function() {
             if (this.fontSize <= 0) {
                 this.fontSize = 100;
             };
             setTimeout(() => document.getElementById('fontSize').focus(), 0);
+            this.initGame();
         },
         nOffset: function() {
             setTimeout(() => document.getElementById('nOffset').focus(), 0);
