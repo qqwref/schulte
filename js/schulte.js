@@ -400,6 +400,9 @@ vueApp = new Vue({
             this.hasClickedYet = false;
         },
         initTable: function () {
+            this.setTableMargin(50);
+            this.rowHeight = 100 / this.currentGridSize + "%";
+            this.colWidth = 100 / this.currentGridSize + "%";
             this.clearIndexes();
             this.currGroup = 0;
             this.makeGridCells();
@@ -529,13 +532,19 @@ vueApp = new Vue({
                         newBoop = null;
                     }
                     this.stats.correctClicks ++;
-                    this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, false, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
+                    this.stats.addClick(
+                        this.cells[this.clickIndex].group,
+                        this.cells[this.clickIndex].number,
+                        false,
+                        this.groups[this.cells[this.clickIndex].group].inverted,
+                        this.groups[this.cells[this.clickIndex].group].divergent
+                    );
                     this.cells[this.clickIndex].traced = true;
                     if (this.clearCorrect) {
-                        this.cells[this.clickIndex].symbol = "";
+                        this.cells[this.clickIndex].colorStyle = "color: transparent";
                     }
                     if (this.frenzyMode) {
-                        this.cells[this.clickIndex].symbol = "";
+                        this.cells[this.clickIndex].colorStyle = "color: transparent";
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
@@ -544,7 +553,7 @@ vueApp = new Vue({
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
                                 if (!(this.frenzyCount == 1 && this.hideReact)) {
-                                    this.cells[i].symbol = "" + this.cells[i].number;
+                                    this.cells[i].colorStyle = this.groupColorStyles[this.cells[i].group];
                                 }
                                 if (this.frenzyCount == 1) {
                                     this.cells[i].isReact = true;
@@ -555,7 +564,7 @@ vueApp = new Vue({
                     if (this.blindMode) {
                         if (this.stats.correctClicks == 1) {
                             for (let i = 0; i < this.cells.length; i++) {
-                                this.cells[i].symbol = "";
+                                this.cells[this.clickIndex].colorStyle = "color: transparent";
                             }
                         }
                     }
@@ -595,12 +604,11 @@ vueApp = new Vue({
                         return this.execDialog('settings');
                     }
                     if (this.blindMode && this.stats.correctClicks >= 1 && !this.cells[this.clickIndex].traced) {
-                        // unclear this cell, but add 10 seconds
-                        this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].number + "";
+                        // show this cell again, but add 10 seconds
+                        this.cells[this.clickIndex].colorStyle = this.groupColorStyles[this.cells[this.clickIndex].group];
                         this.stats.startTime -= 10000;
                     }
                     this.stats.wrongClicks ++;
-                    this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, true, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
                     this.correctIndex = -1;
                 }
             }
@@ -735,7 +743,7 @@ vueApp = new Vue({
 
                 // clear symbols
                 for (let i = 0; i < cellCount; i++) {
-                    this.cells[i].symbol = "";
+                    this.cells[i].colorStyle = "color: transparent";
                 }
 
                 // set first few symbols
@@ -743,7 +751,7 @@ vueApp = new Vue({
                     for (let i = 0; i < cellCount; i++) {
                         if (this.cells[i].group == this.goalList[g][0] && this.cells[i].number == this.goalList[g][1]) {
                             if (!(this.frenzyCount == 1 && this.hideReact)) {
-                                this.cells[i].symbol = "" + this.cells[i].number;
+                                this.cells[g].colorStyle = this.groupColorStyles[this.cells[i].group];
                             }
                             if (this.frenzyCount == 1) {
                                 this.cells[i].isReact = true;
@@ -829,17 +837,21 @@ vueApp = new Vue({
             this.stopMouseTracking();
         },
         changeDialogTab: function (tabName) {
-            this.statsTabVisible = false;
             this.settingsTabVisible = false;
+            this.statsTabVisible = false;
             this.mousemapTabVisible = false;
-
-            if (tabName === 'stats') {
-                this.statsTabVisible = true;
-            } else if (tabName === 'mousemap') {
-                this.mousemapTabVisible = true; // see 'updated' section
-            } else {
-                this.settingsTabVisible = true;
-            }
+            
+            switch (tabName) {
+                case "settings":
+                    this.settingsTabVisible = true;
+                    break;
+                case "stats":
+                    this.statsTabVisible = true;
+                    break;
+                case "mousemap":
+                    this.mousemapTabVisible = true;
+                    break;
+            };
         },
         onEsc: function() {
             if (this.gameStarted) {
@@ -905,7 +917,7 @@ vueApp = new Vue({
             }
         },
         update69Underline: function () {
-            if (!this.turnSymbols && !this.spinSymbols && !this.spinTable) return;
+            if ((!this.turnSymbols && !this.spinSymbols && !this.spinTable) || this.mathMode) return;
             const confusing = new Set([6, 9, 66, 99, 68, 98, 86, 89]);
             for (let i = 0; i < this.cells.length; i++) {
                 if (confusing.has(this.cells[i].number)) {
@@ -978,6 +990,7 @@ vueApp = new Vue({
             category += (this.flashlightMode) ? " FL" : "";
             category += (this.nOffset != 0) ? " Offset " + this.nOffset : "";
             category += (this.mathMode) ? " Math" : "";
+
             return category;
         },
         startMouseTracking: function () {
@@ -1038,7 +1051,10 @@ vueApp = new Vue({
                 const y0 = 10;
                 const gWidth = width - x0;
                 const gHeight = height - y0 * 2;
-                ctx.clearRect(0, 0, width, height);
+
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = "black";
 
                 // axes
                 ctx.lineWidth = 2;
