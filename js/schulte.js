@@ -303,7 +303,7 @@ vueApp = new Vue({
             this.colWidth = 100 / this.gridSize + '%';
             this.initGame();
         },
-        roundCount: function(val) {
+        roundCount: function() {
             this.initGame();
         },
         groupCount: function () {
@@ -533,7 +533,7 @@ vueApp = new Vue({
                         newBoop.play();
                         newBoop = null;
                     }
-                    this.stats.correctClicks ++;
+                    this.stats.correctClicks++;
                     this.stats.addClick(
                         this.cells[this.clickIndex].group,
                         this.cells[this.clickIndex].number,
@@ -550,7 +550,7 @@ vueApp = new Vue({
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
-                        const nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + this.frenzyCount - 1));
+                        let nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + this.frenzyCount - 1));
                         for (let i = 0; i < this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
@@ -567,6 +567,8 @@ vueApp = new Vue({
                         if (this.stats.correctClicks == 1) {
                             for (let i = 0; i < this.cells.length; i++) {
                                 this.cells[this.clickIndex].colorStyle = "color: transparent";
+                                //test abc
+                                console.log(this.cells[this.clickIndex].colorStyle);
                             }
                         }
                     }
