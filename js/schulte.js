@@ -390,6 +390,7 @@ vueApp = new Vue({
     methods: {
         initGame: function () {
             this.gameStarted = false;
+            this.betweenRounds = false;
             this.initTable();
             this.stats.clear();
             this.mouseMoves.length = 0;
