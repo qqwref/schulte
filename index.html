@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/w3.css">
     <link rel="stylesheet" href="css/schulte.css">
     <script src="js/vue.min.js"></script>
-    <title>Schulte Table</title>
+    <title>Schulte Table Test</title>
     <style>
         [v-cloak] {
             display: none;
@@ -19,13 +19,13 @@
          tabindex="-1"
          @mousemove="appendMouseMove($event)"
          @keyup.esc="onEsc()"
-         @keydown.space="onSpace()"
-         @keyup.enter="if(dialogShowed) hideDialog()"
+         @keyup.space="onSpace()"
+         @keyup.16="onShift()"
          v-focus v-cloak>
         <div class="round-display"
-            v-if="gameStarted && showRounds && parseInt(rounds) > 1"
+            v-if="gameStarted && showRounds && roundCount > 1"
         >
-            {{currentRoundNumber()}} / {{rounds}}
+            {{currentRoundNumber()}} / {{roundCount}}
         </div>
         <div class="schulte"
             :class="[spinTable ? gameStarted && ('spin-' + spinTableSpeed) : '']"
@@ -57,16 +57,10 @@
         <div class="center-dot" v-if="showCenterDot"></div>
 
         <div class="w3-modal"
-             :class="[dialogShowed ? 'display-block' : 'display-none']">
-            <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="min-width: 350px; max-width: 800px;">
-                <header class="w3-container w3-blue w3-center">
-                    <span @click="hideDialog"
-                          class="w3-button w3-display-topright w3-xxlarge w3-blue w3-hover-blue w3-hover-text-black"
-                          style="padding: 0 10px 0 0;"
-                          title="Resume Test">
-                    &times;
-                    </span>
-                    <h2>Schulte Table Test</h2>
+             :class="[dialogShowed ? 'display-block' : 'display-none']" style="padding:0!important">
+            <div class="dialog w3-modal-content w3-card-4">
+                <header class="w3-container w3-blue w3-center" @click="hideDialog(); startGame()">
+                    <h2>Start Schulte Table Test</h2>
                 </header>
 
                 <div class="w3-bar w3-light-grey w3-border-bottom">
@@ -108,14 +102,8 @@
                             <select id="rounds"
                                     class="w3-select w3-border w3-padding-small"
                                     style="width:80%"
-                                    v-model="rounds">
-                                    <option value="1">1 round</option>
-                                    <option value="2">2 rounds</option>
-                                    <option value="3">3 rounds</option>
-                                    <option value="5">5 rounds</option>
-                                    <option value="10">10 rounds</option>
-                                    <option value="25">25 rounds</option>
-                                    <option value="100">100 rounds</option>
+                                    v-model="roundCount">
+                                    <option v-for="r in [1, 2, 3, 5, 10, 25, 100]" :value="r">{{r}} round{{r>1 ? "s" : ""}}</option>
                             </select>
                         </div>
 
@@ -126,13 +114,8 @@
                             <select id="groups"
                                     class="w3-select w3-border w3-padding-small"
                                     style="width: 70%"
-                                    v-model="groupType">
-                                <option value="0">1 group</option>
-                                <option value="1">1 group (colored)</option>
-                                <option value="2">2 groups</option>
-                                <option value="3">3 groups</option>
-                                <option value="4">4 groups</option>
-                                <option value="5">5 groups</option>
+                                    v-model="groupCount">
+                                <option v-for="r in Array.from({length: groupColorStyles.length}, (x,i) => (i+1))" :value="r">{{r}} group{{r>1 ? "s" : ""}}</option>
                             </select>
                         </div>
                     </div>
@@ -152,40 +135,21 @@
                             <label class="w3-validate">Collate Groups </label>
                             <br>
                             <label class="w3-validate">Offset: </label>
-                            <input id="nOffset" v-model="nOffset" style="width: 50%"/>
+                            <input type="number" id="nOffset" v-model.lazy="nOffset" style="width: 50%"/>
                         </div>
                         <div class="w3-col w3-third">
-                            <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="parseInt(rounds) === 1">
+                            <input class="w3-check" type="checkbox" v-model="roundBreaks" :disabled="roundCount === 1">
                             <label class="w3-validate">Round Breaks</label>
                             <br>
-                            <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="parseInt(rounds) === 1">
+                            <input class="w3-check" type="checkbox" v-model="showRounds" :disabled="roundCount === 1">
                             <label class="w3-validate">Show Round</label>
                         </div>
                         <div class="w3-col w3-third">
                             <div class="w3-container w3-padding-0" style="margin-top: 10px; width: 90%; float: left;">
-                                <div class="color-num"
-                                      v-if="groupCount == 1"
-                                      v-html="groupRange(0)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[0]"
-                                      v-if="groupCount > 1"
-                                      v-html="groupRange(0)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[1]"
-                                      v-if="groupCount > 1"
-                                      v-html="groupRange(1)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[2]"
-                                      v-if="groupCount > 2"
-                                      v-html="groupRange(2)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[3]"
-                                      v-if="groupCount > 3"
-                                      v-html="groupRange(3)"></div>
-                                <div class="color-num"
-                                      :style="groupColorStyles[4]"
-                                      v-if="groupCount > 4"
-                                      v-html="groupRange(4)"></div>
+                                <div v-for="r in Array.from({length: groupColorStyles.length}, (x,i) => (i)) "class="color-num"
+                                      :style="groupColorStyles[r]"
+                                      v-if="groupCount > r"
+                                      v-html="groupRange(r)"></div>
                                 <br>
                                 <input class="w3-check" type="checkbox" v-model="originalColors" style="margin-top: 5px;">
                                 <label class="w3-validate">Original Colors </label>
@@ -249,11 +213,11 @@
                                 <label class="w3-validate">Show Center Dot</label> </p>
                             <p>
                                 <label class="w3-validate">Size: </label>
-                                <input id="tableSize" v-model="tableSize" style="width: 50%">
+                                <input type="number" id="tableSize" v-model.lazy="tableSize" style="width: 50%">
                                 <label class="w3-validate">px</label> </p>
                             <p>
                                 <label class="w3-validate">Font: </label>
-                                <input id="fontSize" v-model="fontSize" style="width: 50%">
+                                <input type="number" id="fontSize" v-model.lazy="fontSize" style="width: 50%">
                                 <label class="w3-validate">%</label> </p>
                         </div>
 
@@ -349,13 +313,13 @@
                             <td>{{ stats.totalWrongClicks() }}</td>
                         </tr>
                     </table>
-                    <div class="w3-row" v-if="stats.rounds.length === parseInt(rounds)">
+                    <div class="w3-row" v-if="stats.rounds.length === roundCount">
                         <div class="w3-row w3-col"
-                             :class="{'w3-half': parseInt(rounds) > 1}"
+                             :class="{'w3-half': roundCount > 1}"
                              style="margin-top: 5px; overflow-y:scroll; overflow-x:hidden; max-height:250px;">
-                            <table v-for="round in parseInt(rounds)" class="w3-table-all w3-hoverable w3-centered">
+                            <table v-for="round in roundCount" class="w3-table-all w3-hoverable w3-centered">
                                 <thead>
-                                    <tr class="w3-light-grey" v-if="rounds > 1">
+                                    <tr class="w3-light-grey" v-if="roundCount > 1">
                                         <th></th>
                                         <th>Round {{round}} - {{stats.roundTimeString(round)}}s</th>
                                         <th></th>
@@ -374,7 +338,7 @@
                         </div>
                         <div class="w3-row w3-col w3-half"
                              style="margin-top: 5px"
-                             v-if="parseInt(rounds) > 1 && !gameStarted">
+                             v-if="roundCount > 1 && !gameStarted">
                             <canvas class="round-graph"
                                     width="250" height="250"
                                     ref="roundGraphCanvas" />
@@ -389,7 +353,7 @@
                     </canvas>
                 </div>
 
-                <footer class="w3-container w3-light-grey w3-center">
+                <!--<footer class="w3-container w3-light-grey w3-center">
                     <button type="button"
                             class="w3-btn w3-indigo w3-text-white w3-xlarge"
                             style="width: 80%; margin: 10px;"
@@ -397,7 +361,7 @@
                             ref="btn">
                         Start Test
                     </button>
-                </footer>
+                </footer>-->
             </div>
         </div>
     </div>
