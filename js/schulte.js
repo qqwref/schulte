@@ -506,10 +506,10 @@ vueApp = new Vue({
 
                 // append mouseClick
                 if (this.mouseTracking) {
-                    const shiftX = (window.innerWidth - this.tableSize) / 2;
-                    const shiftY = (window.innerHeight - this.tableSize) / 2;
-                    const nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
-                    const ny = (event.clientY - shiftY) / this.tableSize;
+                    let shiftX = (window.innerWidth - this.tableSize) / 2;
+                    let shiftY = (window.innerHeight - this.tableSize) / 2;
+                    let nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
+                    let ny = (event.clientY - shiftY) / this.tableSize;
                     this.mouseClicks.push(
                         new Click(nx, ny, this.isCellCorrect(this.clickIndex))
                     );
@@ -1003,10 +1003,10 @@ vueApp = new Vue({
                 }
             }
             if (this.mouseTracking) {
-                const shiftX = (window.innerWidth - this.tableSize) / 2;
-                const shiftY = (window.innerHeight - this.tableSize) / 2;
-                const nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
-                const ny = (event.clientY - shiftY) / this.tableSize;
+                let shiftX = (window.innerWidth - this.tableSize) / 2;
+                let shiftY = (window.innerHeight - this.tableSize) / 2;
+                let nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
+                let ny = (event.clientY - shiftY) / this.tableSize;
                 this.mouseMoves.push(
                     new Point(nx, ny)
                 );
