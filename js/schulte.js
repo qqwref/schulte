@@ -565,6 +565,7 @@ vueApp = new Vue({
                     }
                     if (this.blindMode) {
                         if (true /*this.stats.correctClicks == 1*/) {
+                            alert(this.stats.correctClicks);
                             for (let i = 0; i < this.cells.length; i++) {
                                 this.cells[i].colorStyle = "color: transparent";
                             }
