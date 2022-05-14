@@ -400,6 +400,9 @@ vueApp = new Vue({
             this.hasClickedYet = false;
         },
         initTable: function () {
+            this.setTableMargin(50);
+            this.rowHeight = 100 / this.gridSize + "%";
+            this.colWidth = 100 / this.gridSize + "%";
             this.clearIndexes();
             this.currGroup = 0;
             this.makeGridCells();
