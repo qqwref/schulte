@@ -842,14 +842,20 @@ vueApp = new Vue({
             }
         },
         onEsc: function() {
-            this.execDialog('settings');
+            if (this.gameStarted) {
+                this.stopGame();
+                this.execDialog('settings');
+            }
         },
         onSpace: function() {
             this.dialogShowed = false;
             this.startGame();
         },
         onShift: function() {
-            if (this.betweenRounds) {
+            if (!this.gameStarted) {
+                this.dialogShowed = false;
+                this.startGame();
+            } else if (this.betweenRounds) {
                 this.startNextRound();
             };
         },
