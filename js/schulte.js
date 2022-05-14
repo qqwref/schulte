@@ -550,7 +550,7 @@ vueApp = new Vue({
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
-                        let nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + this.frenzyCount - 1));
+                        const nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + this.frenzyCount - 1));
                         for (let i = 0; i < this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
@@ -566,9 +566,7 @@ vueApp = new Vue({
                     if (this.blindMode) {
                         if (this.stats.correctClicks == 1) {
                             for (let i = 0; i < this.cells.length; i++) {
-                                this.cells[this.clickIndex].colorStyle = "color: transparent";
-                                //test abc
-                                console.log(this.cells[this.clickIndex].colorStyle);
+                                this.cells[i].colorStyle = "color: transparent";
                             }
                         }
                     }
@@ -751,7 +749,7 @@ vueApp = new Vue({
                 }
 
                 // set first few symbols
-                for (let g = 0; g < this.frenzyCount; g++) {
+                /* testing what is the probelm abc for (let g = 0; g < this.frenzyCount; g++) {
                     for (let i = 0; i < cellCount; i++) {
                         if (this.cells[i].group == this.goalList[g][0] && this.cells[i].number == this.goalList[g][1]) {
                             if (!(this.frenzyCount == 1 && this.hideReact)) {
@@ -762,7 +760,7 @@ vueApp = new Vue({
                             }
                         }
                     }
-                }
+                }*/
             }
             if (this.mathMode) {
                 // generate list of numbers
