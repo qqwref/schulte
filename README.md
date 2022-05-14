@@ -9,5 +9,5 @@ Keyboard Shortcuts:
   <li>Esc: ends the game</li>
   <li>Shift: continues after a round break, starts the game</li>
 </ul>
-![pic0](https://habrastorage.org/files/198/88c/b6b/19888cb6b44947b598de3b3e9b6ab5c3.gif)
+[pic0](https://habrastorage.org/files/198/88c/b6b/19888cb6b44947b598de3b3e9b6ab5c3.gif)
 
