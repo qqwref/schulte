@@ -730,7 +730,7 @@ vueApp = new Vue({
                 this.goalList = [[0, this.groups[0].currNum]];
                 const groupNums = [];
                 for (let i = 0; i < this.groupCount; i++) {
-                    groupNums[i] = this.groups[g].currNum;
+                    groupNums[i] = this.groups[i].currNum;
                 }
                 for (let i = 0; i < (this.gridSize * this.gridSize) - 1; i++) {
                     // code to compute next goal - taken from nextNum() and nextGroup()
