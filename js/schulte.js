@@ -99,6 +99,10 @@ const timeString = function(diff) {
 };
 
 const appData = {
+    //maximum values for different settings
+    maxGridSize: 30,
+    maxFrenzyCount: 5,
+    
     gridSize: 5,
     gridRange: [],
     cells: [],      // array of Cell
