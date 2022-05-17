@@ -764,7 +764,7 @@ vueApp = new Vue({
             }
             if (this.mathMode) {
                 // generate list of numbers
-                const numberList = [[0, "0"]];
+                let numberList = [[0, "0"]];
                 const integerMax = Math.floor(this.gridSize * this.gridSize / 2);
                 for (let i = 1; i <= integerMax; i++) {
                     numberList.push([i, i+""]);
