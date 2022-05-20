@@ -99,6 +99,10 @@ const timeString = function(diff) {
 };
 
 const appData = {
+    //maximum values for different settings
+    maxGridSize: 30,
+    maxFrenzyCount: 5,
+    
     gridSize: 5,
     gridRange: [],
     cells: [],      // array of Cell
@@ -303,7 +307,7 @@ vueApp = new Vue({
             this.colWidth = 100 / this.gridSize + '%';
             this.initGame();
         },
-        roundCount: function(val) {
+        roundCount: function() {
             this.initGame();
         },
         groupCount: function () {
@@ -353,12 +357,14 @@ vueApp = new Vue({
                 this.tableSize = 600;
             };
             setTimeout(() => document.getElementById('tableSize').focus(), 0);
+            this.initGame();
         },
         fontSize: function() {
             if (this.fontSize <= 0) {
                 this.fontSize = 100;
             };
             setTimeout(() => document.getElementById('fontSize').focus(), 0);
+            this.initGame();
         },
         nOffset: function() {
             setTimeout(() => document.getElementById('nOffset').focus(), 0);
@@ -390,6 +396,7 @@ vueApp = new Vue({
     methods: {
         initGame: function () {
             this.gameStarted = false;
+            this.betweenRounds = false;
             this.initTable();
             this.stats.clear();
             this.mouseMoves.length = 0;
@@ -399,6 +406,9 @@ vueApp = new Vue({
             this.hasClickedYet = false;
         },
         initTable: function () {
+            this.setTableMargin(50);
+            this.rowHeight = 100 / this.gridSize + "%";
+            this.colWidth = 100 / this.gridSize + "%";
             this.clearIndexes();
             this.currGroup = 0;
             this.makeGridCells();
@@ -506,9 +516,13 @@ vueApp = new Vue({
 
                 // append mouseClick
                 if (this.mouseTracking) {
-                    const nx = (event.pageX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
-                    const ny = (event.pageY - 50) / this.$el.clientHeight;
-                    this.mouseClicks.push(new Click(nx, ny, this.isCellCorrect(this.clickIndex)));
+                    let shiftX = (window.innerWidth - this.tableSize) / 2;
+                    let shiftY = (window.innerHeight - this.tableSize) / 2;
+                    let nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
+                    let ny = (event.clientY - shiftY) / this.tableSize;
+                    this.mouseClicks.push(
+                        new Click(nx, ny, this.isCellCorrect(this.clickIndex))
+                    );
                 }
 
                 this.nextTurn();
@@ -523,23 +537,29 @@ vueApp = new Vue({
                         newBoop.play();
                         newBoop = null;
                     }
-                    this.stats.correctClicks ++;
-                    this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, false, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
+                    this.stats.correctClicks++;
+                    this.stats.addClick(
+                        this.cells[this.clickIndex].group,
+                        this.cells[this.clickIndex].number,
+                        false,
+                        this.groups[this.cells[this.clickIndex].group].inverted,
+                        this.groups[this.cells[this.clickIndex].group].divergent
+                    );
                     this.cells[this.clickIndex].traced = true;
                     if (this.clearCorrect) {
-                        this.cells[this.clickIndex].symbol = "";
+                        this.cells[this.clickIndex].colorStyle = "color: transparent";
                     }
                     if (this.frenzyMode) {
-                        this.cells[this.clickIndex].symbol = "";
+                        this.cells[this.clickIndex].colorStyle = "color: transparent";
                         if (this.frenzyCount == 1) {
                             this.cells[this.clickIndex].isReact = false;
                         }
-                        const nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + this.frenzyCount - 1));
+                        const nextGoal = Math.min(this.cells.length - 1, (this.stats.correctClicks + parseInt(this.frenzyCount) - 1));
                         for (let i = 0; i < this.cells.length; i++) {
                             if (this.cells[i].group == this.goalList[nextGoal][0] &&
                                 this.cells[i].number == this.goalList[nextGoal][1]) {
                                 if (!(this.frenzyCount == 1 && this.hideReact)) {
-                                    this.cells[i].symbol = "" + this.cells[i].number;
+                                    this.cells[i].colorStyle = this.groupColorStyles[this.cells[i].group];
                                 }
                                 if (this.frenzyCount == 1) {
                                     this.cells[i].isReact = true;
@@ -548,9 +568,9 @@ vueApp = new Vue({
                         }
                     }
                     if (this.blindMode) {
-                        if (this.stats.correctClicks == 1) {
+                        if (this.stats.correctClicks <= 1) {
                             for (let i = 0; i < this.cells.length; i++) {
-                                this.cells[i].symbol = "";
+                                this.cells[i].colorStyle = "color: transparent";
                             }
                         }
                     }
@@ -590,12 +610,11 @@ vueApp = new Vue({
                         return this.execDialog('settings');
                     }
                     if (this.blindMode && this.stats.correctClicks >= 1 && !this.cells[this.clickIndex].traced) {
-                        // unclear this cell, but add 10 seconds
-                        this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].number + "";
+                        // show this cell again, but add 10 seconds
+                        this.cells[this.clickIndex].colorStyle = this.groupColorStyles[this.cells[this.clickIndex].group];
                         this.stats.startTime -= 10000;
                     }
                     this.stats.wrongClicks ++;
-                    this.stats.addClick(this.currGroup, this.cells[this.clickIndex].number, true, this.groups[this.currGroup].inverted, this.groups[this.currGroup].divergent);
                     this.correctIndex = -1;
                 }
             }
@@ -715,7 +734,7 @@ vueApp = new Vue({
                 this.goalList = [[0, this.groups[0].currNum]];
                 const groupNums = [];
                 for (let i = 0; i < this.groupCount; i++) {
-                    groupNums[i] = this.groups[g].currNum;
+                    groupNums[i] = this.groups[i].currNum;
                 }
                 for (let i = 0; i < (this.gridSize * this.gridSize) - 1; i++) {
                     // code to compute next goal - taken from nextNum() and nextGroup()
@@ -730,15 +749,15 @@ vueApp = new Vue({
 
                 // clear symbols
                 for (let i = 0; i < cellCount; i++) {
-                    this.cells[i].symbol = "";
+                    this.cells[i].colorStyle = "color: transparent";
                 }
 
-                // set first few symbols
+                // set first few symbols abc
                 for (let g = 0; g < this.frenzyCount; g++) {
                     for (let i = 0; i < cellCount; i++) {
                         if (this.cells[i].group == this.goalList[g][0] && this.cells[i].number == this.goalList[g][1]) {
                             if (!(this.frenzyCount == 1 && this.hideReact)) {
-                                this.cells[i].symbol = "" + this.cells[i].number;
+                                this.cells[g].colorStyle = this.groupColorStyles[this.cells[i].group];
                             }
                             if (this.frenzyCount == 1) {
                                 this.cells[i].isReact = true;
@@ -749,7 +768,7 @@ vueApp = new Vue({
             }
             if (this.mathMode) {
                 // generate list of numbers
-                const numberList = [[0, "0"]];
+                let numberList = [[0, "0"]];
                 const integerMax = Math.floor(this.gridSize * this.gridSize / 2);
                 for (let i = 1; i <= integerMax; i++) {
                     numberList.push([i, i+""]);
@@ -824,27 +843,37 @@ vueApp = new Vue({
             this.stopMouseTracking();
         },
         changeDialogTab: function (tabName) {
-            this.statsTabVisible = false;
             this.settingsTabVisible = false;
+            this.statsTabVisible = false;
             this.mousemapTabVisible = false;
-
-            if (tabName === 'stats') {
-                this.statsTabVisible = true;
-            } else if (tabName === 'mousemap') {
-                this.mousemapTabVisible = true; // see 'updated' section
-            } else {
-                this.settingsTabVisible = true;
-            }
+            
+            switch (tabName) {
+                case "settings":
+                    this.settingsTabVisible = true;
+                    break;
+                case "stats":
+                    this.statsTabVisible = true;
+                    break;
+                case "mousemap":
+                    this.mousemapTabVisible = true;
+                    break;
+            };
         },
         onEsc: function() {
-            this.execDialog('settings');
+            if (this.gameStarted) {
+                this.stopGame();
+                this.execDialog('settings');
+            }
         },
         onSpace: function() {
             this.dialogShowed = false;
             this.startGame();
         },
         onShift: function() {
-            if (this.betweenRounds) {
+            if (!this.gameStarted) {
+                this.dialogShowed = false;
+                this.startGame();
+            } else if (this.betweenRounds) {
                 this.startNextRound();
             };
         },
@@ -894,7 +923,7 @@ vueApp = new Vue({
             }
         },
         update69Underline: function () {
-            if (!this.turnSymbols && !this.spinSymbols && !this.spinTable) return;
+            if ((!this.turnSymbols && !this.spinSymbols && !this.spinTable) || this.mathMode) return;
             const confusing = new Set([6, 9, 66, 99, 68, 98, 86, 89]);
             for (let i = 0; i < this.cells.length; i++) {
                 if (confusing.has(this.cells[i].number)) {
@@ -967,6 +996,7 @@ vueApp = new Vue({
             category += (this.flashlightMode) ? " FL" : "";
             category += (this.nOffset != 0) ? " Offset " + this.nOffset : "";
             category += (this.mathMode) ? " Math" : "";
+
             return category;
         },
         startMouseTracking: function () {
@@ -999,9 +1029,13 @@ vueApp = new Vue({
                 }
             }
             if (this.mouseTracking) {
-                const nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
-                const ny = (event.clientY - 50) / this.$el.clientHeight;
-                this.mouseMoves.push(new Point(nx, ny));
+                let shiftX = (window.innerWidth - this.tableSize) / 2;
+                let shiftY = (window.innerHeight - this.tableSize) / 2;
+                let nx = (event.clientX - shiftX) / this.tableSize; // normalize in [0, 1] interval
+                let ny = (event.clientY - shiftY) / this.tableSize;
+                this.mouseMoves.push(
+                    new Point(nx, ny)
+                );
             }
         },
         drawRoundGraph: function() {
@@ -1023,7 +1057,10 @@ vueApp = new Vue({
                 const y0 = 10;
                 const gWidth = width - x0;
                 const gHeight = height - y0 * 2;
-                ctx.clearRect(0, 0, width, height);
+
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = "black";
 
                 // axes
                 ctx.lineWidth = 2;
@@ -1101,7 +1138,7 @@ vueApp = new Vue({
                     const W = canvas.width;
                     const H = canvas.height;
                     ctx.fillStyle = 'white';
-                    ctx.clearRect(0, 0, W, H);
+                    ctx.fillRect(0, 0, W, H);
 
                     this.drawMousemapGrid(ctx, W, H);
                     this.drawMousemapMoves(ctx, W, H);
@@ -1117,10 +1154,10 @@ vueApp = new Vue({
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 for (let i = 1; i < this.gridSize; i ++) {
-                    ctx.moveTo(i*colW, 0);
-                    ctx.lineTo(i*colW, H);
-                    ctx.moveTo(0, i*rowH);
-                    ctx.lineTo(W, i*rowH);
+                    ctx.moveTo(i * colW, 0);
+                    ctx.lineTo(i * colW, H);
+                    ctx.moveTo(0, i * rowH);
+                    ctx.lineTo(W, i * rowH);
                 }
                 ctx.stroke();
                 ctx.closePath();
@@ -1131,7 +1168,7 @@ vueApp = new Vue({
                 ctx.beginPath();
                 ctx.strokeStyle = '#1f6ef7'; //'#f78383';
                 ctx.lineWidth = 2;
-                for (let i = 0; i + 1 < this.mouseMoves.length; i ++) {
+                for (let i = 0; i < this.mouseMoves.length - 1; i++) {
                     const x0 = this.mouseMoves[i].x * W;
                     const y0 = this.mouseMoves[i].y * H;
                     const x1 = this.mouseMoves[i+1].x * W;
