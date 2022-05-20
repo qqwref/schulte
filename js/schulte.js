@@ -939,9 +939,8 @@ vueApp = new Vue({
             }
         },
         category: function () {
-            // things ignored: collate; original colors; show hover; show click result; show center dot
-            let category = "";
-            category += this.gridSize + "x" + this.gridSize;
+            // things ignored: original colors; show hover; show click result; show center dot
+            let category = this.gridSize + "x" + this.gridSize;
             
             if (this.roundCount > 1) {
                 category += " " + this.roundCount + "r";
@@ -949,6 +948,8 @@ vueApp = new Vue({
             }
             
             category += (this.groupCount > 1) ? " " + this.groupCount + "c" : "";
+            
+            category += (this.collateGroups) ? " Collate" : "";
             
             if (this.variousCounts && this.groupCount > 1) {
                 category += " Various";
@@ -974,7 +975,7 @@ vueApp = new Vue({
                     case "speed4": category += "CL"; break;
                     case "speed5": category += "CM"; break;
                     case "speed6": category += "CH"; break;
-                };
+                }
             }
             
             category += (this.noErrors) ? " NE" : "";
@@ -994,7 +995,7 @@ vueApp = new Vue({
             category += (!this.clearCorrect) ? " -EC" : "";
             category += (this.startOnClick) ? " ST" : "";
             category += (this.flashlightMode) ? " FL" : "";
-            category += (this.nOffset != 0) ? " Offset " + this.nOffset : "";
+            category += (this.nOffset) ? " Offset " + this.nOffset : ""; // any truthy number will pass the check
             category += (this.mathMode) ? " Math" : "";
 
             return category;
