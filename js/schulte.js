@@ -414,7 +414,6 @@ vueApp = new Vue({
             this.updateSymbolSpins();
             this.update69Underline();
             this.updateColorStyles();
-            this.updateLeftRightClick();
         },
         startGame: function () {
             this.initGame();
@@ -532,10 +531,6 @@ vueApp = new Vue({
                 }
                 
                 if (correctClick) {
-                    if (this.leftRightClick) {
-                        this.cells[this.clickIndex].cssClasses["right-click"] = false;
-                        this.cells[this.clickIndex].cssClasses["left-click"] = false;
-                    }
                     if (this.clickSound && this.useClickSound) {
                         // play click sound and copy so they can overlap
                         newBoop = this.clickSound.cloneNode();
@@ -951,16 +946,6 @@ vueApp = new Vue({
                 this.groupColorStyles = ['color: green', 'color: red', 'color: blue', 'color: magenta', 'color: brown'];
             } else {
                 this.groupColorStyles = ['color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'];
-            }
-        },
-        updateLeftRightClick: function () {
-            if (!this.leftRightClick) return;
-            for (var i = 0; i < this.cells.length; i++) {
-                if (this.cells[i].rightClick) {
-                    this.cells[i].cssClasses['right-click'] = true;
-                } else {
-                    this.cells[i].cssClasses['left-click'] = true;
-                }
             }
         },
         category: function () {

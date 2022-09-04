@@ -37,11 +37,14 @@
                  @mouseleave="hoveredCell = -1"
                  @mousedown="setClickedCell(r*gridSize + c, $event)"
                  :class="{'normal-cell' : (!showHover && !showClickAnimation) || !gameStarted,
+                          'right-click' : leftRightClick && cells[r*gridSize + c].rightClick && !tracedCell(r*gridSize+c),
+                          'left-click' : leftRightClick && !cells[r*gridSize + c].rightClick && !tracedCell(r*gridSize+c),
                           'hovered-cell': showHover && (hoveredCell == r*gridSize + c) && gameStarted,
                           'correct-cell': showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell == correctIndex && gameStarted,
                           'wrong-cell'  : (showClickAnimation && (clickedCell == r*gridSize + c) && clickedCell != correctIndex && gameStarted && !(frenzyMode && frenzyCount == 1) && !hoverMode) || cells[r*gridSize + c].isReact,
                           'traced-cell' : tracedCell(r*gridSize + c) && showTrace &&  gameStarted,
-                          'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1) && showTransitions
+                          'transition' : gameStarted && !shuffleSymbols && !(frenzyMode && frenzyCount == 1) && !leftRightClick && showTransitions
+                          
                           }"
                 >
                 <span :class="[cells[r*gridSize + c].cssClasses]"
