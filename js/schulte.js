@@ -5,6 +5,7 @@ function Cell(number) {
     this.symbol = number;
     this.group = 0;
     this.traced = false;
+    this.rightClick = false;
     this.cssClasses = {
         'rotate-90': false,
         'rotate-180': false,
@@ -155,6 +156,9 @@ var appData = {
     blindMode: false,
     flashlightMode: false,
     mathMode: false,
+    lettersMode: false,
+    leftRightClick: false,
+    lastClickButton: 0,
     tableSize: 600,
     fontSize: 100,
     nOffset: 0,
@@ -410,6 +414,7 @@ vueApp = new Vue({
             this.updateSymbolSpins();
             this.update69Underline();
             this.updateColorStyles();
+            this.updateLeftRightClick();
         },
         startGame: function () {
             this.initGame();
@@ -489,7 +494,9 @@ vueApp = new Vue({
             }
         },
         setClickedCell: function (cellIdx, event) {
-            if (event.button != 0) return;
+            if (this.leftRightClick) {
+                this.lastClickButton = event.button;
+            } else if (event.button != 0) return;
             if (this.betweenRounds) return;
             if (this.gameStarted) {
                 if (this.startOnClick && !this.hasClickedYet) {
@@ -519,7 +526,16 @@ vueApp = new Vue({
         },
         nextTurn: function () {
             if (this.clickIndex >= 0 && this.clickIndex < this.cells.length) {
-                if (this.isCellCorrect(this.clickIndex)) {
+                let correctClick = this.isCellCorrect(this.clickIndex);
+                if (this.leftRightClick) {
+                    if ((this.cells[this.clickIndex].rightClick && this.lastClickButton != 2) || (!this.cells[this.clickIndex].rightClick && this.lastClickButton != 0)) correctClick = false;
+                }
+                
+                if (correctClick) {
+                    if (this.leftRightClick) {
+                        this.cells[this.clickIndex].cssClasses["right-click"] = false;
+                        this.cells[this.clickIndex].cssClasses["left-click"] = false;
+                    }
                     if (this.clickSound && this.useClickSound) {
                         // play click sound and copy so they can overlap
                         newBoop = this.clickSound.cloneNode();
@@ -713,6 +729,9 @@ vueApp = new Vue({
                     if (this.colorGroups) {
                         cell.colorStyle = this.groupColorStyles[g];
                     };
+                    if (this.leftRightClick) {
+                        cell.rightClick = (Math.random() > 0.5);
+                    }
                     range.push(cell);
                 }
             }
@@ -803,6 +822,12 @@ vueApp = new Vue({
                 // set cells' symbols to those values
                 for (i=0; i<cellCount; i++) {
                     this.cells[i].symbol = numberList[this.cells[i].number - 1][1];
+                }
+            }
+            else if (this.lettersMode) {
+                // set cells' symbols to those values
+                for (i=0; i<cellCount; i++) {
+                    this.cells[i].symbol = String.fromCharCode(this.cells[i].number + 64);
                 }
             }
         },
@@ -928,6 +953,16 @@ vueApp = new Vue({
                 this.groupColorStyles = ['color: blue', 'color: green', 'color: #d90', 'color: red', 'color: magenta'];
             }
         },
+        updateLeftRightClick: function () {
+            if (!this.leftRightClick) return;
+            for (var i = 0; i < this.cells.length; i++) {
+                if (this.cells[i].rightClick) {
+                    this.cells[i].cssClasses['right-click'] = true;
+                } else {
+                    this.cells[i].cssClasses['left-click'] = true;
+                }
+            }
+        },
         category: function () {
             // things ignored: collate; original colors; show hover; show click result; show center dot
             var category = this.gridSize + "x" + this.gridSize;
@@ -988,11 +1023,17 @@ vueApp = new Vue({
             if (this.flashlightMode) {
                 category += " FL";
             }
+            if (this.leftRightClick) {
+                category += " LR";
+            }
             if (!isNaN(parseInt(this.nOffset)) && parseInt(this.nOffset) != 0) {
                 category += " Offset " + parseInt(this.nOffset);
             }
             if (this.mathMode) {
                 category += " Math";
+            }
+            if (this.lettersMode) {
+                category += " Letters";
             }
             return category;
         },

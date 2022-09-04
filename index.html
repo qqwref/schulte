@@ -287,6 +287,9 @@
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="startOnClick">
                                 <label class="w3-validate">Start Timer on Click</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="leftRightClick" :disabled="hoverMode">
+                                <label class="w3-validate">Left/Right Click Colors</label> </p>
                         </div>
 
                         <div class="w3-container w3-col w3-third w3-padding-0">
@@ -309,7 +312,7 @@
                                 <input class="w3-check" type="checkbox" v-model="hideReact" :disabled="blindMode || frenzyCount > 1">
                                 <label class="w3-validate">React: Hide Numbers</label> </p>
                             <p>
-                                <input class="w3-check" type="checkbox" v-model="hoverMode" :disabled="blindMode">
+                                <input class="w3-check" type="checkbox" v-model="hoverMode" :disabled="leftRightClick">
                                 <label class="w3-validate">Hover Mode</label> </p>
                             <p>
                                 <input class="w3-check" type="checkbox" v-model="blindMode" :disabled="frenzyMode">
@@ -318,8 +321,11 @@
                                 <input class="w3-check" type="checkbox" v-model="flashlightMode">
                                 <label class="w3-validate">Flashlight Mode</label> </p>
                             <p>
-                                <input class="w3-check" type="checkbox" v-model="mathMode">
+                                <input class="w3-check" type="checkbox" v-model="mathMode" :disabled="lettersMode">
                                 <label class="w3-validate">Math Mode</label> </p>
+                            <p>
+                                <input class="w3-check" type="checkbox" v-model="lettersMode" :disabled="mathMode">
+                                <label class="w3-validate">Letters Mode</label> </p>
                         </div>
                     </div>
                 </div>

@@ -273,6 +273,20 @@ select::-ms-expand {
     background: url('../img/green_dot.png');
 }
 
+.right-click {
+	background: #fa7;
+	width: 100%;
+    height: 100%;
+	text-align: center;
+}
+
+.left-click {
+	background: #99f;
+	width: 100%;
+    height: 100%;
+	text-align: center;
+}
+
 .round-display {
     position: fixed;
     top: 2px;
