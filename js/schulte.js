@@ -515,9 +515,13 @@ vueApp = new Vue({
 
                 // append mouseClick
                 if (this.mouseTracking) {
-                    var nx = (event.pageX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
-                    var ny = (event.pageY - 50) / this.$el.clientHeight;
-                    this.mouseClicks.push(new Click(nx, ny, this.isCellCorrect(this.clickIndex)));
+                    let shiftX = (window.innerWidth - this.tableWidth) / 2;
+                    let shiftY = (window.innerHeight - this.tableHeight) / 2;
+                    let nx = (event.clientX - shiftX); 
+                    let ny = (event.clientY - shiftY);
+                    this.mouseClicks.push(
+                        new Click(nx, ny, this.isCellCorrect(this.clickIndex))
+                    );
                 }
 
                 this.nextTurn();
@@ -1053,9 +1057,13 @@ vueApp = new Vue({
                 }
             }
             if (this.mouseTracking) {
-                var nx = (event.clientX - 50) / this.$el.clientWidth;  // normalize in [0, 1] interval
-                var ny = (event.clientY - 50) / this.$el.clientHeight;
-                this.mouseMoves.push(new Point(nx, ny));
+                const shiftX = (window.innerWidth - this.tableWidth) / 2;
+                const shiftY = (window.innerHeight - this.tableHeight) / 2;
+                const nx = (event.clientX - shiftX);
+                const ny = (event.clientY - shiftY);
+                this.mouseMoves.push(
+                    new Point(nx, ny)
+                );
             }
         },
         drawRoundGraph: function() {
