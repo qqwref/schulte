@@ -564,6 +564,7 @@ vueApp = new Vue({
                     if (this.blindMode) {
                         if (this.stats.correctClicks == 1) {
                             for (var i = 0; i < this.cells.length; i++) {
+                                this.cells[i].blindSymbol = this.cells[i].symbol;
                                 this.cells[i].symbol = '';
                             }
                         }
@@ -605,7 +606,7 @@ vueApp = new Vue({
                     }
                     if (this.blindMode && this.stats.correctClicks >= 1 && !this.cells[this.clickIndex].traced) {
                         // unclear this cell, but add 10 seconds
-                        this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].number + "";
+                        this.cells[this.clickIndex].symbol = this.cells[this.clickIndex].blindSymbol + "";
                         this.stats.startTime -= 10000;
                     }
                     this.stats.wrongClicks ++;
